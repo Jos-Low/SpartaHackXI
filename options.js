@@ -36,10 +36,21 @@ async function save() {
     //xpPerMinuteBad: Number(document.getElementById("xpBad").value || 0)
   };
 
-  chrome.runtime.sendMessage({ type: "SET_SETTINGS", settingsPatch: patch }, (res) => {
-    status.textContent = res?.ok ? "Saved ✅" : `Error: ${res?.err || "unknown"}`;
-    setTimeout(() => (status.textContent = ""), 2000);
-  });
+  chrome.runtime.sendMessage(
+    { type: "SET_SETTINGS", settingsPatch: patch },
+    (res) => {
+      if (res?.ok) {
+        status.textContent = "Saved ✅";
+
+        setTimeout(() => {
+          window.close();
+        }, 300);
+      } else {
+        status.textContent = `Error: ${res?.err || "unknown"}`;
+        setTimeout(() => (status.textContent = ""), 2000);
+      }
+    }
+  );
 }
 
 document.getElementById("save").addEventListener("click", save);

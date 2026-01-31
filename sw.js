@@ -228,12 +228,12 @@ async function startUpgrade() {
 
 // ---------- Lifecycle ----------
 chrome.runtime.onInstalled.addListener(async () => {
-  // removed for testing
   const existingS = await chrome.storage.sync.get("settings");
   if (!existingS.settings) await chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
 
   const existingState = await chrome.storage.local.get("state");
   if (!existingState.state) await chrome.storage.local.set({ state: DEFAULT_STATE });
+  
 
   settingsCache = null;
   stateCache = null;
