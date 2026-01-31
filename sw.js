@@ -2,13 +2,13 @@ const DEFAULT_SETTINGS = {
   goodSites: [],
   badSites: [],
   xpPerMinuteGood: 10,
-  xpPerMinuteBad: 15
+  xpPerMinuteBad: 10
 };
 
 const DEFAULT_STATE = {
   xp: 0,
-  level: 1,
-  xpToNext: 100,
+  level: 0,
+  xpToNext: 5,
   pendingUpgrade: false,
   // session tracking
   current: null // { tabId, url, category, startTs, windowFocused, userIdle }

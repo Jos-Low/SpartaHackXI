@@ -1,25 +1,34 @@
-#xp-buddy-character {
+/* container that holds character + xp label */
+#xp-buddy-container {
   position: fixed;
   right: 16px;
   bottom: 16px;
-  width: 150px;
-  height: 150px;
   z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 2px;
+
+  /* click-through so it doesn't block the page */
   pointer-events: none;
-  opacity: 0.95;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
 }
 
-#xp-buddy-bubble {
-  position: fixed;
-  right: 16px;
-  bottom: 118px;
-  z-index: 2147483647;
+/* character image */
+#xp-buddy-character {
+  width: 150px;
+  height: 150px;
+  opacity: 0.95;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  margin-bottom: -20px;
+}
+
+/* always-on XP display under character */
+#xp-buddy-xp {
   background: rgba(20, 20, 20, 0.85);
   color: white;
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
   font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  pointer-events: none;
-  max-width: 220px;
+  white-space: nowrap;
 }

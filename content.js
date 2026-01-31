@@ -1,39 +1,46 @@
 (function () {
   // avoid duplicate injection
-  if (document.getElementById("xp-buddy-character")) return;
+  if (document.getElementById("xp-buddy-container")) return;
 
+  // container
+  const container = document.createElement("div");
+  container.id = "xp-buddy-container";
+
+  // character
   const img = document.createElement("img");
   img.id = "xp-buddy-character";
   img.src = chrome.runtime.getURL("assets/character.png");
   img.alt = "XP Buddy";
 
-  const bubble = document.createElement("div");
-  bubble.id = "xp-buddy-bubble";
-  bubble.textContent = "XP Buddy ready!";
+  // xp label
+  const xpLabel = document.createElement("div");
+  xpLabel.id = "xp-buddy-xp";
+  xpLabel.textContent = "Loading XP...";
 
-  document.documentElement.appendChild(img);
-  document.documentElement.appendChild(bubble);
+  container.appendChild(img);
+  container.appendChild(xpLabel);
 
-  let hideTimer = null;
-  function showBubble(text) {
-    bubble.textContent = text;
-    bubble.style.display = "block";
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => (bubble.style.display = "none"), 2500);
+  // attach to page
+  document.documentElement.appendChild(container);
+
+  function render(state) {
+    const xp = Math.floor(state?.xp ?? 0);
+    const level = state?.level ?? 1;
+    const xpToNext = state?.xpToNext ?? 100;
+
+    xpLabel.textContent = `Lvl ${level} • XP ${xp}/${xpToNext}`;
   }
 
-  // Update bubble occasionally based on XP (optional)
+  // initial load
   chrome.runtime.sendMessage({ type: "GET_STATE" }, (res) => {
-    if (res?.ok) {
-      const { xp, level, xpToNext } = res.state;
-      showBubble(`Level ${level} • XP ${Math.floor(xp)}/${xpToNext}`);
-    }
+    if (res?.ok) render(res.state);
+    else xpLabel.textContent = "XP unavailable";
   });
 
+  // live updates
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "STATE_UPDATED" && msg.state) {
-      const { xp, level, xpToNext } = msg.state;
-      showBubble(`Level ${level} • XP ${Math.floor(xp)}/${xpToNext}`);
+      render(msg.state);
     }
   });
 })();
