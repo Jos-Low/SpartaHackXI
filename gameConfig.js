@@ -6,7 +6,7 @@ export const GAME_CONFIG = {
   levels: [
     {
       level: 1,
-      characterIcon: "assets/Animated_Flower.png",
+      characterIcon: "assets/character/Animated_Flower.png",
       xpToNext: 10,
 
       // when upgrading FROM level 1 TO 2, use this minigame
@@ -14,31 +14,31 @@ export const GAME_CONFIG = {
     },
     {
       level: 2,
-      characterIcon: "assets/LVL_2_Animated_Flower.png",
+      characterIcon: "assets/character/LVL_2_Animated_Flower.png",
       xpToNext: 100,
       // upgradeMinigame: "minigames/flappy.html"
     },
     {
       level: 3,
-      characterIcon: "assets/LVL_3_Animated_Flower.png",
+      characterIcon: "assets/character/LVL_3_Animated_Flower.png",
       xpToNext: 200,
       // upgradeMinigame: "minigames/avoid.html"
     },
     {
       level: 4,
-      characterIcon: "assets/LVL_4_Animated_Flower.png",
+      characterIcon: "assets/character/LVL_4_Animated_Flower.png",
       xpToNext: 300,
       // upgradeMinigame: "minigames/avoid.html"
     },
     {
       level: 5,
-      characterIcon: "assets/LVL_5_Animated_Flower.png",
+      characterIcon: "assets/character/LVL_5_Animated_Flower.png",
       xpToNext: 400,
       // upgradeMinigame: "minigames/avoid.html"
     },
     {
       level: 6,
-      characterIcon: "assets/LVL_6_Animated_Flower.png",
+      characterIcon: "assets/character/LVL_6_Animated_Flower.png",
       xpToNext: 500,
       // upgradeMinigame: "minigames/avoid.html"
     }
