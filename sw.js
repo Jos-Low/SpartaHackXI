@@ -4,9 +4,14 @@ import { getLevelDef } from "./gameConfig.js";
 const DEFAULT_SETTINGS = {
   goodSites: [],
   badSites: [],
-  xpPerMinuteGood: 15,
-  xpPerMinuteBad: 10
+  //xpPerMinuteGood: 15,
+  //xpPerMinuteBad: 10
 };
+
+const XP_RATES = Object.freeze({
+  good: 15,
+  bad: 10,
+});
 
 // NOTE: xpToNext will be set from config on init
 const DEFAULT_STATE = {
@@ -130,8 +135,8 @@ async function finalizeCurrentSession(reason) {
       const minutes = deltaMs / 60000;
 
       let xpDelta = 0;
-      if (curr.category === "good") xpDelta = minutes * settings.xpPerMinuteGood;
-      if (curr.category === "bad") xpDelta = -minutes * settings.xpPerMinuteBad;
+      if (curr.category === "good") xpDelta = minutes * XP_RATES.good;
+      if (curr.category === "bad") xpDelta = -minutes * settings.XP_RATES.bad;
 
       if (xpDelta !== 0) {
         const newXp = Math.max(0, (state.xp || 0) + xpDelta);
