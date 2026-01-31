@@ -1,24 +1,27 @@
 function render(state) {
-  const xp = Math.floor(state.xp || 0);
-  const level = state.level || 1;
-  const xpToNext = state.xpToNext || 100;
+  if (!state) return;
 
-  document.getElementById("levelText").textContent = `Level ${level}`;
-  document.getElementById("xpText").textContent = `XP: ${xp}/${xpToNext}`;
+  const xp = Math.floor(state.xp ?? 0);
+  const level = state.level ?? 1;
+  const xpToNext = state.xpToNext ?? 100;
 
-  const pct = Math.max(0, Math.min(100, (xp / xpToNext) * 100));
-  document.getElementById("xpFill").style.width = `${pct}%`;
+  const levelTextEl = document.getElementById("levelText");
+  const xpTextEl = document.getElementById("xpText");
+  const xpFillEl = document.getElementById("xpFill");
+  const upgradeBtn = document.getElementById("upgrade");
 
-  // Change character sprite based on level
-  const characterIcon = document.getElementById("characterIcon");
-  if (characterIcon) {
-    if (level >= 3) {
-      characterIcon.src = "assets/LVL_2_Animated_Flower.png";
-    } else if (level >= 2) {
-      characterIcon.src = "assets/LVL_1_Animated_Flower.png";
-    } else {
-      characterIcon.src = "assets/Animated_Flower.png";
-    }
+  if (levelTextEl) levelTextEl.textContent = `Level ${level}`;
+  if (xpTextEl) xpTextEl.textContent = `XP: ${xp}/${xpToNext}`;
+
+  if (xpFillEl) {
+    const pct = Math.max(0, Math.min(100, (xp / xpToNext) * 100));
+    xpFillEl.style.width = `${pct}%`;
+  }
+
+  if (upgradeBtn) {
+    const canUpgrade = !state.pendingUpgrade && xp >= xpToNext;
+    upgradeBtn.disabled = !canUpgrade;
+    upgradeBtn.textContent = state.pendingUpgrade ? "Upgrading..." : "Upgrade";
   }
 }
 
@@ -28,15 +31,48 @@ function load() {
   });
 }
 
-// Open the options/settings page
-document.getElementById("openOptions").addEventListener("click", (e) => {
-  e.preventDefault();
-  chrome.runtime.openOptionsPage();
-});
+document.addEventListener("DOMContentLoaded", () => {
+  const openOptionsEl = document.getElementById("openOptions");
+  if (openOptionsEl) {
+    openOptionsEl.addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.runtime.openOptionsPage();
+    });
+  }
 
-// Listen for live state updates from the service worker
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "STATE_UPDATED") render(msg.state);
-});
+  // ✅ Upgrade button click handler
+  const upgradeBtn = document.getElementById("upgrade");
+  if (upgradeBtn) {
+    upgradeBtn.addEventListener("click", () => {
+      // Optimistic UI (optional, but feels responsive)
+      upgradeBtn.disabled = true;
+      upgradeBtn.textContent = "Upgrading...";
 
-load();
+      chrome.runtime.sendMessage({ type: "START_UPGRADE" }, (res) => {
+        if (!res?.ok) {
+          console.warn("START_UPGRADE failed:", res?.err);
+
+          // Re-render from canonical state to restore correct UI
+          load();
+          return;
+        }
+
+        // If success: background will broadcast STATE_UPDATED and render() will run.
+        // No need to do anything else here.
+      });
+    });
+  }
+
+  document.getElementById("reset")?.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "RESET_STATE" }, (res) => {
+    console.log("reset:", res);
+    });
+  });
+
+
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === "STATE_UPDATED") render(msg.state);
+  });
+
+  load(); // call after DOM is ready
+});

@@ -6,7 +6,8 @@
   "permissions": ["tabs", "storage", "idle"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "sw.js"
+    "service_worker": "sw.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "popup.html"
@@ -22,12 +23,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "assets/character.png",
-        "assets/Animated_Flower.png",
-        "assets/LVL_1_Animated_Flower.png",
-        "assets/LVL_2_Animated_Flower.png"
-      ],
+      "resources": ["assets/Animated_Flower.png", "assets/LVL_2_Animated_Flower.png", "assets/LVL_3_Animated_Flower.png", "assets/LVL_4_Animated_Flower.png", "assets/LVL_5_Animated_Flower.png", "assets/LVL_6_Animated_Flower.png"],
       "matches": ["<all_urls>"]
     }
   ]
