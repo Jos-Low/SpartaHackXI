@@ -9,7 +9,27 @@
       .fill { height: 100%; width: 0%; background: #4caf50; }
       .row { display:flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
       button { margin-top: 12px; width: 100%; padding: 10px; cursor: pointer; }
-      a { display:block; margin-top: 10px; text-align: center; font-size: 12px; }
+      .settings-btn { 
+        display: block; 
+        margin-top: 10px; 
+        text-align: center; 
+        font-size: 13px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+      .settings-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      .settings-btn:active {
+        transform: translateY(0);
+      }
     </style>
   </head>
   <body>
@@ -23,8 +43,7 @@
       <div id="deltaHint"></div>
     </div>
 
-    <button id="reset">Reset XP</button>
-    <a href="#" id="openOptions">Edit Good/Bad Sites</a>
+    <a href="#" id="openOptions" class="settings-btn">⚙️ Edit Good/Bad Sites</a>
 
     <script src="popup.js"></script>
   </body>

@@ -219,12 +219,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return sendResponse({ ok: true });
     }
 
-    if (msg.type === "RESET_XP") {
-      const state = await getState();
-      await saveState({ xp: 0, level: 1, xpToNext: xpToNextForLevel(1), current: state.current });
-      return sendResponse({ ok: true });
-    }
-
     return sendResponse({ ok: false, err: "Unknown message" });
   })();
 
