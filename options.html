@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>XP Buddy Settings</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; max-width: 800px; margin: 24px auto; padding: 0 16px; }
+      h1 { margin: 0 0 16px; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      textarea { width: 100%; height: 220px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .controls { display:flex; gap: 12px; margin-top: 16px; }
+      button { padding: 10px 12px; cursor: pointer; }
+      .note { color: #555; font-size: 13px; margin-top: 8px; }
+      .small { font-size: 12px; color: #666; }
+      label { display:block; margin: 12px 0 6px; font-weight: 600; }
+      input { padding: 8px; width: 140px; }
+    </style>
+  </head>
+  <body>
+    <h1>XP Buddy Settings</h1>
+
+    <div class="row">
+      <div>
+        <label>Good Sites (one per line)</label>
+        <textarea id="goodSites" placeholder="wikipedia.org&#10;docs.google.com"></textarea>
+        <div class="small">Matches subdomains too (e.g. en.wikipedia.org).</div>
+      </div>
+      <div>
+        <label>Bad Sites (one per line)</label>
+        <textarea id="badSites" placeholder="twitter.com&#10;youtube.com"></textarea>
+        <div class="small">Matches subdomains too.</div>
+      </div>
+    </div>
+
+    <label>XP / minute (good)</label>
+    <input id="xpGood" type="number" min="0" step="1" />
+
+    <label>XP / minute (bad penalty)</label>
+    <input id="xpBad" type="number" min="0" step="1" />
+
+    <div class="controls">
+      <button id="save">Save</button>
+      <span id="status" class="note"></span>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

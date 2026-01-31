@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; width: 280px; margin: 0; padding: 14px; }
+      .title { font-weight: 800; margin-bottom: 10px; }
+      .bar { height: 12px; background: #eee; border-radius: 999px; overflow: hidden; }
+      .fill { height: 100%; width: 0%; background: #4caf50; }
+      .row { display:flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
+      button { margin-top: 12px; width: 100%; padding: 10px; cursor: pointer; }
+      a { display:block; margin-top: 10px; text-align: center; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="title">XP Buddy</div>
+
+    <div id="levelText">Level 1</div>
+    <div class="bar"><div class="fill" id="xpFill"></div></div>
+
+    <div class="row">
+      <div id="xpText">XP: 0/100</div>
+      <div id="deltaHint"></div>
+    </div>
+
+    <button id="reset">Reset XP</button>
+    <a href="#" id="openOptions">Edit Good/Bad Sites</a>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

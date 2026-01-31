@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "XP Buddy MVP",
+  "version": "0.1.0",
+  "description": "Earn XP on good sites, lose XP on bad sites, with a character overlay.",
+  "permissions": ["tabs", "storage", "idle"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "sw.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/character.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
