@@ -19,12 +19,12 @@ const ui = {
 // Pick difficulty by grid size.
 // You can change this to 4x3, 4x4, 6x4, etc.
 const GRID_COLS = 4;
-const GRID_ROWS = 4; // 4x4 = 16 cards = 8 pairs
+const GRID_ROWS = 3; // 4x4 = 16 cards = 8 pairs
 
 // Lives and preview timing (ms)
 const START_LIVES = 3;
-const PREVIEW_MS = 1400;     // how long to keep face-up before flipping down
-const BETWEEN_FLIPS_MS = 250; // small delay before enabling input
+const PREVIEW_MS = 5000;     // how long to keep face-up before flipping down
+const BETWEEN_FLIPS_MS = 400; // small delay before enabling input
 
 // Card style
 const CARD_RADIUS = 14;
@@ -38,19 +38,18 @@ const CARD_FACE_BORDER = "rgba(255,255,255,0.22)";
 // then update the paths here.
 const FACE_IMAGE_PATHS = [
   // Needs at least (GRID_COLS*GRID_ROWS)/2 unique images
-  "./assets/face1.png",
-  "./assets/face2.png",
-  "./assets/face3.png",
-  "./assets/face4.png",
-  "./assets/face5.png",
-  "./assets/face6.png",
-  "./assets/face7.png",
-  "./assets/face8.png",
+  "../../assets/game_4/GAME_4_baby_sloth.png",
+  "../../assets/game_4/GAME_4_chad_sloth.png",
+  "../../assets/game_4/GAME_4_clown_sloth.png",
+  "../../assets/game_4/GAME_4_evil_sloth.png",
+  "../../assets/game_4/GAME_4_flower_sloth.png",
+  "../../assets/game_4/GAME_4_sleep_sloth.png",
 ];
+const BACK_IMAGE_PATH = "../../assets/game_4/GAME_4_CARD_BACK.png";
 
 // If you don't have images yet, we auto-generate colored placeholders.
 // Keep this true during development; set false once you add real images.
-const ALLOW_PLACEHOLDER_FACES = true;
+const ALLOW_PLACEHOLDER_FACES = false;
 
 // ------------------------
 // Helpers
@@ -152,6 +151,7 @@ const totalPairs = totalCards / 2;
 ui.totalPairs.textContent = String(totalPairs);
 
 let faces = []; // array of HTMLImageElement or Canvas for placeholders
+let backImg = null; // HTMLImageElement for card back
 
 class Card {
   constructor(id, faceIndex) {
@@ -229,31 +229,46 @@ class Card {
     roundRectPath(ctx, this.x, this.y, this.w, this.h, CARD_RADIUS);
 
     if (!showFace) {
-      ctx.fillStyle = CARD_BACK_COLOR;
-      ctx.fill();
-      ctx.strokeStyle = CARD_BACK_BORDER;
-      ctx.lineWidth = 2;
-      ctx.stroke();
+  // Draw custom back image if available
+  const pad = 0;
+  if (backImg) {
+    ctx.save();
+    roundRectPath(
+      ctx,
+      this.x + pad,
+      this.y + pad,
+      this.w - pad * 2,
+      this.h - pad * 2,
+      12
+    );
+    ctx.clip();
 
-      // simple back pattern
-      ctx.save();
-      ctx.clip();
-      ctx.globalAlpha = 0.35;
-      ctx.fillStyle = "rgba(255,255,255,0.18)";
-      const step = 18;
-      for (let y = this.y - this.h; y < this.y + this.h * 2; y += step) {
-        ctx.fillRect(this.x - this.w, y, this.w * 3, 6);
-      }
-      ctx.restore();
-    } else {
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fill();
-      ctx.strokeStyle = CARD_FACE_BORDER;
-      ctx.lineWidth = 2;
-      ctx.stroke();
+    const rect = fitRectKeepAspect(
+      backImg.width ?? backImg.naturalWidth ?? 256,
+      backImg.height ?? backImg.naturalHeight ?? 256,
+      this.x + pad,
+      this.y + pad,
+      this.w - pad * 2,
+      this.h - pad * 2
+    );
 
+    ctx.drawImage(backImg, rect.x, rect.y, rect.w, rect.h);
+    ctx.restore();
+  } else {
+    // Fallback pattern if back image missing
+    ctx.save();
+    ctx.clip();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    const step = 18;
+    for (let y = this.y - this.h; y < this.y + this.h * 2; y += step) {
+      ctx.fillRect(this.x - this.w, y, this.w * 3, 6);
+    }
+    ctx.restore();
+  }
+} else {
       // draw image
-      const pad = 14;
+      const pad = 0;
       const img = faces[this.faceIndex];
 
       ctx.save();
@@ -312,7 +327,7 @@ function setMatches(n) {
 
 function layoutCards() {
   // Compute card sizes to fit within canvas with margins
-  const margin = 26;
+  const margin = 0;
   const usableW = canvas.width - margin * 2;
   const usableH = canvas.height - margin * 2;
 
@@ -493,15 +508,6 @@ function drawBackground() {
 
 function draw() {
   drawBackground();
-
-  // Board label
-  ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "600 14px ui-sans-serif, system-ui, -apple-system";
-  ctx.fillText("Match all pairs before you run out of lives.", 22, 22);
-  ctx.restore();
-
   for (const c of cards) c.draw(ctx);
 }
 
@@ -525,6 +531,13 @@ async function init() {
   } catch (e) {
     if (!ALLOW_PLACEHOLDER_FACES) throw e;
     loaded = [];
+  }
+
+  try {
+  [backImg] = await loadImages([BACK_IMAGE_PATH]);
+  } catch (e) {
+    console.error(e);
+    backImg = null; // fallback to pattern if missing
   }
 
   if (loaded.length === totalPairs) {

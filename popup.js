@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       chrome.tabs.create({
-        url: chrome.runtime.getURL("minigames/game_5/game_5.html"),
+        url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
       });
 
       window.close();
