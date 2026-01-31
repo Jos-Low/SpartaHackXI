@@ -47,6 +47,9 @@ const FACE_IMAGE_PATHS = [
 ];
 const BACK_IMAGE_PATH = "../../assets/game_4/GAME_4_CARD_BACK.png";
 
+const HEART_FULL_PATH  = "../../assets/game_4/Full_Heart.png";
+const HEART_EMPTY_PATH = "../../assets/game_4/Broken_Heart.png";
+
 // If you don't have images yet, we auto-generate colored placeholders.
 // Keep this true during development; set false once you add real images.
 const ALLOW_PLACEHOLDER_FACES = false;
@@ -93,6 +96,27 @@ function fitRectKeepAspect(srcW, srcH, dstX, dstY, dstW, dstH) {
   }
   return { x, y, w, h };
 }
+
+function assetUrl(relPath) {
+  // Resolves relative to this JS file (works great in MV3 module pages)
+  return new URL(relPath, import.meta.url).href;
+}
+
+function renderHearts() {
+  const heartsEl = document.getElementById("hearts");
+  if (!heartsEl) return;
+
+  heartsEl.innerHTML = "";
+
+  for (let i = 0; i < START_LIVES; i++) {
+    const img = document.createElement("img");
+    img.className = "heart";
+    img.alt = i < lives ? "Full heart" : "Empty heart";
+    img.src = assetUrl(i < lives ? HEART_FULL_PATH : HEART_EMPTY_PATH);
+    heartsEl.appendChild(img);
+  }
+}
+
 
 // ------------------------
 // Assets
@@ -317,8 +341,10 @@ function setStatus(text) {
 
 function setLives(n) {
   lives = n;
-  ui.lives.textContent = String(lives);
+  if (ui.lives) ui.lives.textContent = String(lives);
+  renderHearts();
 }
+
 
 function setMatches(n) {
   matchedPairs = n;
@@ -548,6 +574,8 @@ async function init() {
 
   ui.restart.addEventListener("click", resetGame);
   canvas.addEventListener("click", handleClick);
+
+  renderHearts();
 
   resetGame();
   requestAnimationFrame(loop);
