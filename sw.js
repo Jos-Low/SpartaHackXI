@@ -36,6 +36,13 @@ function getCharacterIconForLevel(level) {
   return def?.characterIcon ?? "assets/character_lv1.png";
 }
 
+function clampXpForLevel(level, xp) {
+  const cap = computeXpToNext(level || 1);
+  const n = Number.isFinite(xp) ? xp : 0;
+  return Math.max(0, Math.min(cap, n));
+}
+
+
 // ---------- Site helpers ----------
 function normalizeHost(url) {
   try {
@@ -80,9 +87,24 @@ async function getState() {
 }
 
 async function saveState(patch) {
-  const state = await getState();
-  stateCache = { ...state, ...patch };
+  const prev = await getState();
+
+  // Merge first
+  let next = { ...prev, ...patch };
+
+  // Keep level sane
+  const level = next.level || 1;
+
+  // Ensure xpToNext always matches the merged level
+  const correctXpToNext = computeXpToNext(level);
+  next.xpToNext = correctXpToNext;
+
+  // Clamp xp so it can never exceed the max for this level
+  next.xp = clampXpForLevel(level, next.xp);
+
+  stateCache = next;
   await chrome.storage.local.set({ state: stateCache });
+
   chrome.runtime.sendMessage({ type: "STATE_UPDATED", state: stateCache }).catch(() => {});
 
   const tabs = await chrome.tabs.query({});
@@ -136,7 +158,7 @@ async function finalizeCurrentSession(reason) {
 
       let xpDelta = 0;
       if (curr.category === "good") xpDelta = minutes * XP_RATES.good;
-      if (curr.category === "bad") xpDelta = -minutes * settings.XP_RATES.bad;
+      if (curr.category === "bad") xpDelta = -minutes * XP_RATES.bad;
 
       if (xpDelta !== 0) {
         const newXp = Math.max(0, (state.xp || 0) + xpDelta);
