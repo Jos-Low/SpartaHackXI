@@ -3,29 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; width: 280px; margin: 0; padding: 14px; }
-      .title { font-weight: 800; margin-bottom: 10px; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; width: 280px; margin: 0; padding: 14px; background: #f5f7fa; }
+      .title { font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+      .character-icon { width: 40px; height: 40px; object-fit: contain; }
       .bar { height: 12px; background: #eee; border-radius: 999px; overflow: hidden; }
       .fill { height: 100%; width: 0%; background: #4caf50; }
       .row { display:flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
-      button { margin-top: 12px; width: 100%; padding: 10px; cursor: pointer; }
-      .settings-btn { 
-        display: block; 
-        margin-top: 10px; 
-        text-align: center; 
+      .settings-btn {
+        display: block;
+        margin-top: 14px;
+        text-align: center;
         font-size: 13px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ff0040 0%, #5b0815 100%);
         color: white;
         text-decoration: none;
         padding: 10px 16px;
         border-radius: 8px;
         font-weight: 600;
+        cursor: pointer;
+        border: none;
         transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 2px 8px rgba(255, 0, 64, 0.3);
       }
       .settings-btn:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 0, 64, 0.4);
       }
       .settings-btn:active {
         transform: translateY(0);
@@ -33,7 +35,10 @@
     </style>
   </head>
   <body>
-    <div class="title">XP Buddy</div>
+    <div class="title">
+      <img src="assets/Animated_Flower.png" alt="XP Buddy" class="character-icon" id="characterIcon">
+      <span>XP Buddy</span>
+    </div>
 
     <div id="levelText">Level 1</div>
     <div class="bar"><div class="fill" id="xpFill"></div></div>
@@ -43,7 +48,7 @@
       <div id="deltaHint"></div>
     </div>
 
-    <a href="#" id="openOptions" class="settings-btn">⚙️ Edit Good/Bad Sites</a>
+    <button id="openOptions" class="settings-btn">⚙️ Edit Good/Bad Sites</button>
 
     <script src="popup.js"></script>
   </body>
