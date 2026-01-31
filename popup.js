@@ -63,6 +63,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const iconEl = document.getElementById("characterIcon");
+  if (!iconEl) return;
+
+  function updateCharacterIcon() {
+    chrome.runtime.sendMessage({ type: "GET_CHARACTER_ICON" }, (res) => {
+      if (!res?.ok || !res.icon) return;
+
+      // res.icon should be like: "assets/character/LVL_2_Animated_Flower.png"
+      iconEl.src = chrome.runtime.getURL(res.icon);
+    });
+  }
+
+  // initial
+  updateCharacterIcon();
+
+  // optional: keep popup in sync if state changes while it's open
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg?.type === "STATE_UPDATED") {
+      updateCharacterIcon();
+    }
+  });
+
   document.getElementById("reset")?.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "RESET_STATE" }, (res) => {
     console.log("reset:", res);
