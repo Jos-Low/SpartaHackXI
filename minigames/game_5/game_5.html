@@ -74,6 +74,22 @@
       </div>
     </div>
 
+    <!-- Win video overlay (plays after winning) -->
+    <div id="videoOverlay" class="hidden" aria-label="Win cutscene">
+      <video
+        id="winVideo"
+        class="win-video"
+        preload="auto"
+        playsinline
+      ></video>
+
+      <!-- Optional skip button -->
+      <button id="skipVideoBtn" class="skip-video-btn hidden" type="button">
+        Skip
+      </button>
+    </div>
+
+
     <script src="./game_5.js"></script>
   </body>
 </html>

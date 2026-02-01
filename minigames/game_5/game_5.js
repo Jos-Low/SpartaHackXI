@@ -15,6 +15,17 @@ const BASE_TRASHCAN_SRC = "trash_can.png";
 const HEART_FULL_SRC = "Full_Heart.png";
 const HEART_EMPTY_SRC = "Broken_Heart.png";
 
+/* ------------------ CONFIG ------------------ */
+
+// Put your real video path here.
+// Example 1: in same folder as HTML: "win_cutscene.mp4"
+// Example 2: elsewhere in assets: "../../assets/cutscenes/win_cutscene.mp4"
+const WIN_VIDEO_SRC = "../../assets/game_5/final_vid.mp4";
+
+// If you want the user to be able to skip:
+const SHOW_SKIP_BUTTON_AFTER_MS = 800; // set 0 to show immediately, or null to never show
+
+
 const CONFIG = {
   heartsMax: 3,
 
@@ -97,6 +108,10 @@ const els = {
   hpText: document.getElementById("hpText"),
   winScreen: document.getElementById("winScreen"),
   loseScreen: document.getElementById("loseScreen"),
+
+    videoOverlay: document.getElementById("videoOverlay"),
+  winVideo: document.getElementById("winVideo"),
+  skipVideoBtn: document.getElementById("skipVideoBtn"),
 };
 
 /* ------------------ HELPERS ------------------ */
@@ -127,6 +142,73 @@ function setStill(imgEl, src) {
 function anyCanActive() {
   return Game.cans.some((c) => c.active);
 }
+
+function showVideoOverlay(on) {
+  if (!els.videoOverlay) return;
+  els.videoOverlay.classList.toggle("hidden", !on);
+}
+
+function stopWinVideo() {
+  if (!els.winVideo) return;
+  try {
+    els.winVideo.pause();
+    els.winVideo.currentTime = 0;
+  } catch {}
+  showVideoOverlay(false);
+  if (els.skipVideoBtn) els.skipVideoBtn.classList.add("hidden");
+}
+
+async function playWinVideoThenShowWinScreen() {
+  // If no video element exists, just fall back to win screen
+  if (!els.winVideo || !els.videoOverlay) {
+    els.winScreen.classList.remove("hidden");
+    return;
+  }
+
+  // Hide win/lose screens while video plays
+  els.winScreen.classList.add("hidden");
+  els.loseScreen.classList.add("hidden");
+
+  // Load video
+  els.winVideo.src = WIN_VIDEO_SRC;
+  els.winVideo.currentTime = 0;
+
+  showVideoOverlay(true);
+
+  // Optional skip button
+  if (els.skipVideoBtn) {
+    els.skipVideoBtn.classList.add("hidden");
+    if (SHOW_SKIP_BUTTON_AFTER_MS !== null) {
+      setTimeout(() => {
+        // only show if still visible/playing
+        if (!els.videoOverlay.classList.contains("hidden")) {
+          els.skipVideoBtn.classList.remove("hidden");
+        }
+      }, Math.max(0, SHOW_SKIP_BUTTON_AFTER_MS));
+    }
+  }
+
+  const finish = () => {
+    // cleanup listeners safely
+    els.winVideo.onended = null;
+    els.winVideo.onerror = null;
+
+    stopWinVideo();
+    els.winScreen.classList.remove("hidden");
+  };
+
+  els.winVideo.onended = finish;
+  els.winVideo.onerror = finish;
+
+  // Try to play. (User just clicked to win, so autoplay should usually be allowed.)
+  try {
+    await els.winVideo.play();
+  } catch (e) {
+    // If autoplay is blocked, just show win screen.
+    finish();
+  }
+}
+
 
 /* ------------------ UI ------------------ */
 function applyBackground() {
@@ -300,14 +382,18 @@ function endGame(won) {
   Game.cans.forEach(resetToBase);
 
   if (won) {
-    els.winScreen.classList.remove('hidden');
+    // NEW: play the win video first, then show win screen
+    playWinVideoThenShowWinScreen();
   } else {
-    els.loseScreen.classList.remove('hidden');
+    stopWinVideo(); // just in case
+    els.loseScreen.classList.remove("hidden");
   }
 }
 
+
 function restart() {
   const now = performance.now();
+  stopWinVideo();
   Game.running = true;
   Game.score = CONFIG.slothMaxHealth;
   Game.hearts = CONFIG.heartsMax;
@@ -419,6 +505,14 @@ function boot() {
   setPlayer("idle", performance.now());
   restart();
   requestAnimationFrame(loop);
+
+  if (els.skipVideoBtn) {
+  els.skipVideoBtn.onclick = () => {
+    // End video early and show win screen
+    stopWinVideo();
+    els.winScreen.classList.remove("hidden");
+  };
+}
 }
 
 boot();
