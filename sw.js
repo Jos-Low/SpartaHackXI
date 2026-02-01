@@ -324,7 +324,6 @@ async function startUpgrade() {
 
 
 // ---------- Lifecycle ----------
-// ---------- Lifecycle ----------
 chrome.runtime.onInstalled.addListener(async () => {
   // ✅ Check if settings exist at TOP LEVEL
   const existing = await chrome.storage.sync.get(['goodSites', 'badSites', 'xpPerMinuteGood', 'xpPerMinuteBad']);
