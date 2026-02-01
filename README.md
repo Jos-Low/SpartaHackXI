@@ -1,143 +1,120 @@
-🌸 Slacker (SpartaHack XI)
+# 🦕 Slacker - Chrome Extension Game
 
-Slacker is a Chrome Extension game where your browsing habits turn into progress.
-Visit productive sites to gain XP over time, avoid distracting sites (or lose XP), and level up your character through a storyline told across 5 mini-games.
+**SpartaHack XI Project**  
+*Where your browsing habits become your adventure*
 
-🎮 Features
+## 🌸 Overview
 
-✅ Earn XP based on time spent on websites
+Slacker is a unique Chrome Extension that gamifies your browsing experience. Transform your productivity into progress as you level up your character through a compelling storyline across 5 mini-games. Visit productive sites to gain XP, avoid distractions, and watch your character grow!
 
-⚠️ Lose XP on “bad” sites
+---
 
-🌱 Level up your character
+## 🎮 Features
 
-🧠 5 mini-games tied to a storyline
+### ✅ Core Features
+- **Smart XP System**: Earn XP based on time spent on productive websites
+- **Penalty System**: Lose XP when visiting distracting "bad" sites
+- **Level Progression**: Level up your character with visual growth
+- **Story-Driven**: 5 unique mini-games tied to an unfolding storyline
+- **Progress Tracking**: Real-time XP progress bar and level display
 
-📈 XP progress bar + level display in popup
+### ⚙️ Customization
+- **Customizable Categories**: Define your own productive/distracting sites in Options
+- **Flexible Settings**: Adjust what counts as "good" or "bad" for your workflow
 
-⚙️ Customizable site categories in Options page
+### 🕹️ Game Mechanics
+- **Active Tracking**: Only counts time when browser is focused and user is active
+- **Level-Up Rewards**: Each level unlocks a new mini-game segment
+- **Visual Progression**: Character sprite evolves with each level
 
-🕹️ How It Works
-XP System
+---
 
+## 🧠 How It Works
+
+### 📊 XP System
 Your XP changes based on:
+- **Site Category**: Good / Bad / Neutral
+- **Time Spent**: Minutes actively spent on site
+- **Activity Status**: Only counts when browser is focused and user is active
 
-What site you’re on (good / bad / neutral)
+### ⬆️ Leveling Up
+1. Earn XP through productive browsing
+2. When XP reaches the threshold, click **Upgrade** in the popup
+3. Level increases + character sprite updates
+4. **NEW**: Extension launches the level-up mini-game for that level!
 
-How long you stay on it
+### 🎮 Mini-Games & Storyline
+Each level unlocks a new chapter in the story:
 
-Only counts time when:
+| Level | Unlocks | Mini-Game |
+|-------|---------|-----------|
+| 1 → 2 | Chapter 1 | `minigames/game_1/game_1.html` |
+| 2 → 3 | Chapter 2 | `minigames/game_2/game_2.html` |
+| 3 → 4 | Chapter 3 | `minigames/game_3/game_3.html` |
+| 4 → 5 | Chapter 4 | `minigames/game_4/game_4.html` |
+| 5 → 6 | Chapter 5 | `minigames/game_5/game_5.html` |
 
-the browser window is focused
+*Each level also updates your character's appearance visually!*
 
-the user is not idle
+---
 
-Leveling Up
+## 🧱 Tech Stack
 
-When your XP reaches the required amount:
+- **JavaScript** (Vanilla)
+- **Chrome Extensions API** (Manifest V3)
+- **Service Worker** for background processing
+- **Chrome APIs Used**:
+  - `chrome.tabs` - Tab tracking
+  - `chrome.storage` - Data persistence
+  - `chrome.idle` - User activity detection
+  - `chrome.runtime` - Extension communication
 
-Click Upgrade in the popup
+---
 
-Your level increases
+## 📦 Installation (Local Development)
 
-The extension launches the level-up mini-game for that level
+### Clone & Setup
+1. **Clone this repository**:
+   ```bash
+   git clone https://github.com/Jos-Low/SpartaHackXI.git
+   cd SpartaHackXI
+2. Open Chrome Extensions:
+  -  Navigate to: chrome://extensions/
 
-Mini-games are configured in gameConfig.js.
+3. Enable Developer Mode:
+  -  Toggle the switch in the top-right corner
 
-🧩 Mini-Games + Storyline
+4. Load the extension:
+  -  Click "Load unpacked"
+  -  Select the project folder
 
-There are 5 mini-games, each tied to a level-up milestone:
-
-Level Up	Mini-game
-1 → 2	minigames/game_1/game_1.html
-2 → 3	minigames/game_2/game_2.html
-3 → 4	minigames/game_3/game_3.html
-4 → 5	minigames/game_4/game_4.html
-5 → 6	minigames/game_5/game_5.html
-
-Each level also updates the character sprite so you can visually see progress.
-
-🧱 Tech Stack
-
-JavaScript
-
-Chrome Extensions Manifest V3
-
-Background logic via Service Worker
-
-Chrome APIs:
-
-chrome.tabs
-
-chrome.storage
-
-chrome.idle
-
-📦 Installation (Local Development)
-
-Clone this repo:
-
-git clone https://github.com/Jos-Low/SpartaHackXI.git
-
-
-Open Chrome and go to:
-
-chrome://extensions
+5. Start playing! 🎉
 
 
-Enable Developer Mode
+File Tree:
+SpartaHackXI/
+├── manifest.json          # Chrome extension setup + permissions
+├── sw.js                 # Background service worker (XP tracking, sessions)
+├── popup.html           # Popup UI
+├── popup.js             # Popup functionality
+├── gameConfig.js        # Level config, XP requirements, mini-game unlocks
+├── options.html         # Site configuration page
+├── options.js           # Options page logic
+├── assets/              # Character sprites and game art
+│   ├── character-level-1.png
+│   ├── character-level-2.png
+│   └── ...
+├── minigames/           # All mini-games + storyline content
+│   ├── game_1/
+│   │   ├── game_1.html
+│   │   ├── game_1.js
+│   │   └── game_1.css
+│   ├── game_2/
+│   └── ...
+└── styles/              # CSS stylesheets
+    ├── popup.css
+    ├── options.css
+    └── common.css
 
-Click Load unpacked
 
-Select the project folder
 
-⚙️ Configuration
-Good / Bad Sites
-
-You can configure which sites give XP or remove XP through the Options page.
-
-Good sites → gain XP/minute
-
-Bad sites → lose XP/minute
-
-Neutral sites → no XP change
-
-🗂️ Project Structure (Important Files)
-
-manifest.json — Chrome extension setup + permissions
-
-sw.js — background service worker (XP tracking, sessions, leveling)
-
-popup.html / popup.js — popup UI (level, XP bar, upgrade button)
-
-gameConfig.js — level config, XP requirements, mini-game unlocks
-
-minigames/ — all mini-games + storyline content
-
-assets/ — character sprites and art
-
-🧠 Gameplay Tips
-
-Add school/work sites to Good Sites
-
-Add distractions to Bad Sites
-
-Keep Chrome focused and stay active to earn XP
-
-When XP is full, hit Upgrade to unlock the next story segment
-
-🚀 Future Improvements
-
-More mini-games and branching story choices
-
-Better balancing for XP rates
-
-Achievements + daily streak system
-
-Map / world screen showing progress through the story
-
-Sound effects + animations
-
-👥 Team / Credits
-
-Built for SpartaHack XI as a productivity + game hybrid Chrome extension.
