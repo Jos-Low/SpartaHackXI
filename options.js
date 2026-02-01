@@ -19,8 +19,12 @@ const DEFAULT_BAD_SITES = [
   'twitch.tv',
 ];
 
+// ✅ Add default XP rates
+const DEFAULT_XP_GOOD = 15;
+const DEFAULT_XP_BAD = 10;
+
 // Load settings on page load
-chrome.storage.sync.get(['goodSites', 'badSites'], (data) => {
+chrome.storage.sync.get(['goodSites', 'badSites', 'xpPerMinuteGood', 'xpPerMinuteBad'], (data) => {
   // If no saved data, use defaults
   const goodSites = data.goodSites && data.goodSites.length > 0 
     ? data.goodSites 
@@ -30,14 +34,22 @@ chrome.storage.sync.get(['goodSites', 'badSites'], (data) => {
     ? data.badSites 
     : DEFAULT_BAD_SITES;
   
+  // ✅ Load XP rates
+  const xpGood = data.xpPerMinuteGood ?? DEFAULT_XP_GOOD;
+  const xpBad = data.xpPerMinuteBad ?? DEFAULT_XP_BAD;
+  
   document.getElementById('goodSites').value = goodSites.join('\n');
   document.getElementById('badSites').value = badSites.join('\n');
+  document.getElementById('xpGood').value = xpGood;
+  document.getElementById('xpBad').value = xpBad;
   
   // Save defaults if this is first time
   if (!data.goodSites || data.goodSites.length === 0) {
     chrome.storage.sync.set({
       goodSites: DEFAULT_GOOD_SITES,
-      badSites: DEFAULT_BAD_SITES
+      badSites: DEFAULT_BAD_SITES,
+      xpPerMinuteGood: DEFAULT_XP_GOOD,
+      xpPerMinuteBad: DEFAULT_XP_BAD
     });
   }
 });
@@ -63,9 +75,15 @@ function autoSave() {
       .map(s => s.trim())
       .filter(s => s);
     
+    // ✅ Get XP rates from inputs
+    const xpGood = parseInt(document.getElementById('xpGood').value) || DEFAULT_XP_GOOD;
+    const xpBad = parseInt(document.getElementById('xpBad').value) || DEFAULT_XP_BAD;
+    
     chrome.storage.sync.set({
       goodSites: goodSites,
-      badSites: badSites
+      badSites: badSites,
+      xpPerMinuteGood: xpGood,
+      xpPerMinuteBad: xpBad
     }, () => {
       status.textContent = '✓ Changes saved automatically';
       setTimeout(() => {
@@ -78,6 +96,8 @@ function autoSave() {
 // Add auto-save listeners
 document.getElementById('goodSites').addEventListener('input', autoSave);
 document.getElementById('badSites').addEventListener('input', autoSave);
+document.getElementById('xpGood').addEventListener('input', autoSave); // ✅ New
+document.getElementById('xpBad').addEventListener('input', autoSave);  // ✅ New
 
 // Back button
 document.getElementById('backBtn').addEventListener('click', () => {
