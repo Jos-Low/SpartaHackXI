@@ -61,6 +61,7 @@ Each level unlocks a new chapter in the story:
 ## 🧱 Tech Stack
 
 - **JavaScript** (Vanilla)
+- **HTML and CSS**
 - **Chrome Extensions API** (Manifest V3)
 - **Service Worker** for background processing
 - **Chrome APIs Used**:
@@ -89,32 +90,3 @@ Each level unlocks a new chapter in the story:
   -  Select the project folder
 
 5. Start playing! 🎉
-
-
-File Tree:
-SpartaHackXI/
-├── manifest.json          # Chrome extension setup + permissions
-├── sw.js                 # Background service worker (XP tracking, sessions)
-├── popup.html           # Popup UI
-├── popup.js             # Popup functionality
-├── gameConfig.js        # Level config, XP requirements, mini-game unlocks
-├── options.html         # Site configuration page
-├── options.js           # Options page logic
-├── assets/              # Character sprites and game art
-│   ├── character-level-1.png
-│   ├── character-level-2.png
-│   └── ...
-├── minigames/           # All mini-games + storyline content
-│   ├── game_1/
-│   │   ├── game_1.html
-│   │   ├── game_1.js
-│   │   └── game_1.css
-│   ├── game_2/
-│   └── ...
-└── styles/              # CSS stylesheets
-    ├── popup.css
-    ├── options.css
-    └── common.css
-
-
-
