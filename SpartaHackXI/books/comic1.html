@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comic Label</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        img {
+            max-width: 90%;
+            height: auto;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .nav-buttons {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: None;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Comic Book Label</h1>
+
+    <!-- Comic label image -->
+    <img src="label.png" alt="Comic Book Label">
+
+    <!-- Navigation buttons -->
+    <div class="nav-buttons">
+        <button onclick="goNext()"><a href="comic2.html">Next ➡</a></button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        function goNext() {
+            window.location.href = "page2.html";
+        }
+    </script>
+
+</body>
+</html>

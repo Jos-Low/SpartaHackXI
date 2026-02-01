@@ -42,6 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Reuse for maps button??
   
+  // const openMinigameEl = document.getElementById("openMinigame");
+  // if (openMinigameEl) {
+  //   openMinigameEl.addEventListener("click", (e) => {
+  //     e.preventDefault();
+
+  //     chrome.tabs.create({
+  //       url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
+  //     });
+
+  //     window.close();
+  //   });
+  // }
+
+
   // const openMinigame3El = document.getElementById("openMinigame3");
   // if (openMinigame3El) {
   //   openMinigame3El.addEventListener("click", (e) => {
@@ -55,18 +69,19 @@ document.addEventListener("DOMContentLoaded", () => {
   //   });
   // }
 
-  // const openMinigame2El = document.getElementById("openMinigame2");
-  // if (openMinigame2El) {
-  //   openMinigame2El.addEventListener("click", (e) => {
-  //     e.preventDefault();
+  const openBook = document.getElementById("openBookBtn");
+  if (openBook) {
+    openBook.addEventListener("click", (e) => {
+      e.preventDefault();
 
-  //     chrome.tabs.create({
-  //       url: chrome.runtime.getURL("minigames/game_2/game_2.html"),
-  //     });
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("books/comic1.html"),
+      });
 
-  //     window.close();
-  //   });
-  // }
+      window.close();
+    });
+  }
+
 
 
   // ✅ Upgrade button click handler
@@ -94,10 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-
-  document.getElementById('launch-game-btn').addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('minigames/game_1/game_1.html') });
-  });
 
   const iconEl = document.getElementById("characterIcon");
   if (!iconEl) return;

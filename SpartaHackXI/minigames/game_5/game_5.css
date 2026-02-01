@@ -1,0 +1,265 @@
+:root {
+  --max-width: 980px;
+
+  /* Bigger cans */
+  --can-size: 300px;
+
+  /* Player */
+  --player-height: 400px;
+  --raise-ui: 0px;
+
+  --lane-gap: 24px;
+
+  --hud-pad: 10px;
+
+  --heart-size: 128px;     /* ✅ bigger hearts */
+  --heart-gap: 12px;
+
+  --hud-blur: 10px;
+  --hud-border: rgba(255, 255, 255, 0.18);
+  --hud-bg: rgba(18, 24, 34, 0.55);
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #0b0f14;
+}
+
+/* Move everything UP (no vertical centering) */
+#wrap {
+  height: 100%;
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  padding: 10px 16px 16px;
+  position: relative;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: min(var(--max-width), 100%);
+  height: min(680px, calc(100vh - 20px));
+
+  margin: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+
+
+#hearts {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  gap: var(--heart-gap);
+  align-items: center;
+  pointer-events: none;
+}
+
+#hearts .heart {
+  width: var(--heart-size);
+  height: var(--heart-size);
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
+}
+
+
+#scoreBox {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--hud-bg);
+  border: 1px solid var(--hud-border);
+  backdrop-filter: blur(var(--hud-blur));
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  text-align: center;
+  min-width: 140px;
+}
+
+#scoreLabel {
+  opacity: 0.8;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+#score {
+  margin-top: 2px;
+  font-weight: 900;
+  font-size: 28px; /* ✅ bigger */
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+
+#restartBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  pointer-events: auto;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--hud-border);
+  color: rgba(255, 255, 255, 0.95);
+
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+
+  backdrop-filter: blur(var(--hud-blur));
+  box-shadow: 0 10px 22px rgba(0,0,0,0.22);
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+#restartBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+#restartBtn:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+#restartBtn:focus-visible {
+  outline: 3px solid rgba(140, 200, 255, 0.65);
+  outline-offset: 2px;
+}
+
+
+#playfield {
+  width: min(var(--max-width), 100%);
+  height: min(680px, calc(100vh - 20px)); /* ✅ HUD no longer above, shrink less */
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+
+.can {
+  width: var(--can-size);
+  height: var(--can-size);
+  flex: 0 0 auto;
+  position: relative;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.canImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  /* No transform/movement — APNG handles motion */
+}
+
+/* Player sits lower-left; can adjust if desired */
+#player {
+  position: absolute;
+  right: 20px;               /* anchor to right */
+  bottom: 0px;              /* anchor to bottom */
+  left: auto;                /* make sure left isn't used */
+
+  height: var(--player-height);
+  width: auto;               /* let width follow the sprite */
+  pointer-events: none;
+  overflow: visible;
+  z-index: 5;                /* stays above background/cans */
+}
+
+#playerSprite {
+  position: relative;        /* simpler since #player is anchored */
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: right bottom;
+  max-width: none;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
+}
+
+/* overlay */
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+}
+#overlay.hidden {
+  display: none;
+}
+#overlayCard {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 18px 20px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  min-width: 280px;
+}
+#overlayTitle {
+  font-size: 26px;
+  font-weight: 900;
+}
+#overlaySub {
+  margin-top: 8px;
+  opacity: 0.85;
+}
+
+
+#lanes {
+  position: absolute;
+
+  /* IMPORTANT: don't use inset:0 */
+  left: 50%;
+  bottom: 0;
+  top: auto;
+  right: auto;
+
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  gap: var(--lane-gap);
+
+  /* Make the container shrink to the cans */
+  width: max-content;      /* more reliable than fit-content here */
+  padding: 0 0 250px 0;    /* keep your vertical lift */
+}
