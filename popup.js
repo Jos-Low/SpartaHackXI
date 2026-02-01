@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById('launch-game-btn').addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('minigame/game.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('minigames/game_1/game_1.html') });
   });
 
   const iconEl = document.getElementById("characterIcon");
