@@ -1,3 +1,5 @@
+const MAX_LEVEL = 6;
+
 function render(state) {
   if (!state) return;
 
@@ -11,19 +13,44 @@ function render(state) {
   const upgradeBtn = document.getElementById("upgrade");
 
   if (levelTextEl) levelTextEl.textContent = `Level ${level}`;
-  if (xpTextEl) xpTextEl.textContent = `XP: ${xp}/${xpToNext}`;
+
+  const isMax = level >= MAX_LEVEL;
+
+  // --- XP text + bar ---
+  if (xpTextEl) {
+    if (isMax) {
+      xpTextEl.textContent = "XP: MAX";
+    } else {
+      xpTextEl.textContent = `XP: ${xp}/${xpToNext}`;
+    }
+  }
 
   if (xpFillEl) {
-    const pct = Math.max(0, Math.min(100, (xp / xpToNext) * 100));
-    xpFillEl.style.width = `${pct}%`;
+    if (isMax) {
+      // show full bar OR hide it — pick your preference:
+      xpFillEl.style.width = "100%";
+      // If you prefer to hide it entirely, use:
+      // xpFillEl.style.width = "0%";
+      // xpFillEl.parentElement?.classList.add("hidden"); // if you have a wrapper
+    } else {
+      const pct = xpToNext > 0 ? Math.max(0, Math.min(100, (xp / xpToNext) * 100)) : 0;
+      xpFillEl.style.width = `${pct}%`;
+    }
   }
 
+  // --- Upgrade button ---
   if (upgradeBtn) {
-    const canUpgrade = !state.pendingUpgrade && xp >= xpToNext;
-    upgradeBtn.disabled = !canUpgrade;
-    upgradeBtn.textContent = state.pendingUpgrade ? "Upgrading..." : "Upgrade";
+    if (isMax) {
+      upgradeBtn.disabled = true;
+      upgradeBtn.textContent = "Max Level";
+    } else {
+      const canUpgrade = !state.pendingUpgrade && xp >= xpToNext;
+      upgradeBtn.disabled = !canUpgrade;
+      upgradeBtn.textContent = state.pendingUpgrade ? "Upgrading..." : "Upgrade";
+    }
   }
 }
+
 
 function load() {
   chrome.runtime.sendMessage({ type: "GET_STATE" }, (res) => {
@@ -101,27 +128,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const upgradeBtn = document.getElementById("upgrade");
   if (upgradeBtn) {
     upgradeBtn.addEventListener("click", () => {
-      // Optimistic UI (optional, but feels responsive)
-      upgradeBtn.disabled = true;
-      upgradeBtn.textContent = "Upgrading...";
+      chrome.runtime.sendMessage({ type: "GET_STATE" }, (st) => {
+        const level = st?.state?.level ?? 1;
+        if (level >= MAX_LEVEL) return; // 🚫 do nothing at max
 
-      chrome.runtime.sendMessage({ type: "START_UPGRADE" }, (res) => {
-        if (!res?.ok) {
-          console.warn("START_UPGRADE failed:", res?.err);
-          load();
-          return;
-        }
+        // Optimistic UI
+        upgradeBtn.disabled = true;
+        upgradeBtn.textContent = "Upgrading...";
 
-        // ✅ Open upgrade minigame (if configured)
-        if (res.upgradeMinigame) {
-          chrome.tabs.create({
-            url: chrome.runtime.getURL(res.upgradeMinigame),
-          });
-          window.close();
-        }
+        chrome.runtime.sendMessage({ type: "START_UPGRADE" }, (res) => {
+          if (!res?.ok) {
+            console.warn("START_UPGRADE failed:", res?.err);
+            load();
+            return;
+          }
+
+          if (res.upgradeMinigame) {
+            chrome.tabs.create({
+              url: chrome.runtime.getURL(res.upgradeMinigame),
+            });
+            window.close();
+          }
+        });
       });
     });
   }
+
 
   document.getElementById('launch-game-btn').addEventListener('click', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('minigames/game_1/game_1.html') });

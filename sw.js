@@ -17,14 +17,26 @@ const DEFAULT_STATE = {
   current: null
 };
 
+const MAX_LEVEL = 6;
+
+function isMaxLevel(level) {
+  return (level || 1) >= MAX_LEVEL;
+}
+
 let settingsCache = null;
 let stateCache = null;
 
 // ---------- Level/Config helpers ----------
 function computeXpToNext(level) {
-  const def = getLevelDef(level);
-  return def?.xpToNext ?? (100 + level * 50);
+  const lvl = Math.min(Math.max(1, level || 1), MAX_LEVEL);
+
+  // At max level, there is no "next" XP target
+  if (lvl >= MAX_LEVEL) return 0;
+
+  const def = getLevelDef(lvl);
+  return def?.xpToNext ?? (100 + lvl * 50);
 }
+
 
 function getCharacterIconForLevel(level) {
   const def = getLevelDef(level);
@@ -121,29 +133,32 @@ async function saveState(patch) {
   // Merge first
   let next = { ...prev, ...patch };
 
-  // Keep level sane
-  const level = next.level || 1;
+  // Keep level sane + capped
+  next.level = Math.min(Math.max(1, next.level || 1), MAX_LEVEL);
 
-  // Ensure xpToNext always matches the merged level
-  const correctXpToNext = computeXpToNext(level);
-  next.xpToNext = correctXpToNext;
+  // Ensure xpToNext always matches the merged/capped level
+  next.xpToNext = computeXpToNext(next.level);
 
-  // Clamp xp so it can never exceed the max for this level
-  next.xp = clampXpForLevel(level, next.xp);
+  // If we're maxed, don't keep accumulating XP (keep it at 0)
+  if (isMaxLevel(next.level)) {
+    next.xp = 0;
+  } else {
+    // Clamp xp so it can never exceed the max for this level
+    next.xp = clampXpForLevel(next.level, next.xp);
+  }
 
   stateCache = next;
   await chrome.storage.local.set({ state: stateCache });
 
-  // Notify popup
   chrome.runtime.sendMessage({ type: "STATE_UPDATED", state: stateCache }).catch(() => {});
 
-  // Notify content scripts
   const tabs = await chrome.tabs.query({});
   for (const tab of tabs) {
     if (!tab.id) continue;
     chrome.tabs.sendMessage(tab.id, { type: "STATE_UPDATED", state: stateCache }).catch(() => {});
   }
 }
+
 
 async function saveSettings(patch) {
   const s = await getSettings();
@@ -163,22 +178,30 @@ async function saveSettings(patch) {
 // Make sure xpToNext is always correct for the stored level
 async function ensureStateIsConsistent() {
   const state = await getState();
-  const level = state.level || 1;
+
+  const rawLevel = state.level || 1;
+  const level = Math.min(Math.max(1, rawLevel), MAX_LEVEL);
 
   const patch = {};
-  if (!state.level) patch.level = 1;
+  if (!state.level || state.level !== level) patch.level = level;
   if (state.xp == null) patch.xp = 0;
   if (state.pendingUpgrade) patch.pendingUpgrade = false;
 
   const correctXpToNext = computeXpToNext(level);
-  if (!state.xpToNext || state.xpToNext !== correctXpToNext) {
+  if (state.xpToNext !== correctXpToNext) {
     patch.xpToNext = correctXpToNext;
+  }
+
+  // If max, force xp = 0
+  if (isMaxLevel(level) && state.xp !== 0) {
+    patch.xp = 0;
   }
 
   if (Object.keys(patch).length) {
     await saveState(patch);
   }
 }
+
 
 // ---------- Reset helpers ----------
 async function resetStateToDefault() {
@@ -213,6 +236,14 @@ async function resetStateToDefault() {
 async function finalizeCurrentSession(reason) {
   const state = await getState();
   const settings = await getSettings();
+
+  // If max level, stop accruing XP entirely
+  if (isMaxLevel(state.level)) {
+    await saveState({ current: null, xp: 0 });
+    console.log(`[Session] Ended (max level, no XP): ${reason}`);
+    return;
+  }
+
   const curr = state.current;
 
   if (!curr) {
@@ -303,17 +334,33 @@ async function startUpgrade() {
   await ensureStateIsConsistent();
 
   const level = state.level || 1;
+
+  // 🚫 already max
+  if (isMaxLevel(level)) {
+    return { ok: false, err: "MAX_LEVEL" };
+  }
+
   const xp = state.xp || 0;
   const xpToNext = computeXpToNext(level);
 
   if (xp < xpToNext) return { ok: false, err: "Not enough XP" };
 
-  // Look up the minigame for THIS level from gameConfig
   const def = getLevelDef(level);
   const upgradeMinigame = def?.upgradeMinigame ?? null;
 
-  // Instant upgrade behavior
-  const newLevel = level + 1;
+  const newLevel = Math.min(level + 1, MAX_LEVEL);
+
+  // if we just reached max, wipe XP + target
+  if (newLevel >= MAX_LEVEL) {
+    await saveState({
+      level: newLevel,
+      xp: 0,
+      xpToNext: 0,
+      pendingUpgrade: false
+    });
+    return { ok: true, level: newLevel, upgradeMinigame };
+  }
+
   const newXp = Math.max(0, xp - xpToNext);
   const newXpToNext = computeXpToNext(newLevel);
 
@@ -326,6 +373,7 @@ async function startUpgrade() {
 
   return { ok: true, level: newLevel, upgradeMinigame };
 }
+
 
 // ---------- Lifecycle ----------
 chrome.runtime.onInstalled.addListener(async () => {

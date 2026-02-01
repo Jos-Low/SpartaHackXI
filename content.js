@@ -2,6 +2,8 @@
   // avoid duplicate injection
   if (document.getElementById("xp-buddy-container")) return;
 
+  const MAX_LEVEL = 6;
+
   // container
   const container = document.createElement("div");
   container.id = "xp-buddy-container";
@@ -42,11 +44,18 @@
     const level = state?.level ?? 1;
     const xpToNext = state?.xpToNext ?? 100;
 
-    xpLabel.textContent = `Lvl ${level} • XP ${xp}/${xpToNext}`;
+    const isMax = level >= MAX_LEVEL;
+
+    if (isMax) {
+      xpLabel.textContent = `Lvl ${level} • XP MAX`;
+    } else {
+      xpLabel.textContent = `Lvl ${level} • XP ${xp}/${xpToNext}`;
+    }
 
     // ✅ Always pull icon from SW (single source of truth)
     setCharacterIconFromSW();
   }
+
 
   // initial load
   chrome.runtime.sendMessage({ type: "GET_STATE" }, (res) => {
