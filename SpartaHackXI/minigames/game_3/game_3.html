@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Game 3 — Flow Connect</title>
+    <link rel="stylesheet" href="./game_3.css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="title">
+          <span class="badge">Mini Game</span>
+          <h1>Flow Connect</h1>
+        </div>
+
+        <div class="controls">
+          <label class="selectWrap">
+            <span>Level</span>
+            <select id="levelSelect"></select>
+          </label>
+
+          <button id="resetBtn" class="btn">Reset</button>
+          <button id="clearBtn" class="btn ghost">Clear All</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="boardWrap">
+          <div id="board" class="board" aria-label="Game board"></div>
+        </div>
+
+        <div class="statusRow">
+          <div id="status" class="status">Connect all matching colors.</div>
+          <div id="progress" class="progress"></div>
+        </div>
+
+        <div class="help">
+          <p>
+            <b>How to play:</b> Click/touch an endpoint circle and drag to the
+            matching circle. Paths must be orthogonal (up/down/left/right) and
+            cannot overlap.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <script src="./game_3.js"></script>
+  </body>
+</html>
