@@ -42,18 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Reuse for maps button??
   
-  // const openMinigameEl = document.getElementById("openMinigame");
-  // if (openMinigameEl) {
-  //   openMinigameEl.addEventListener("click", (e) => {
-  //     e.preventDefault();
+  const openMap = document.getElementById("openMapBtn");
+  if (openMap) {
+    openMap.addEventListener("click", (e) => {
+      e.preventDefault();
 
-  //     chrome.tabs.create({
-  //       url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
-  //     });
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("map.html"),
+      });
 
-  //     window.close();
-  //   });
-  // }
+      window.close();
+    });
+  }
 
 
   // const openMinigame3El = document.getElementById("openMinigame3");
