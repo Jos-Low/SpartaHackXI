@@ -40,6 +40,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const openMinigameEl = document.getElementById("openMinigame");
+  if (openMinigameEl) {
+    openMinigameEl.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
+      });
+
+      window.close();
+    });
+  }
+
+
+  const openMinigame3El = document.getElementById("openMinigame3");
+  if (openMinigame3El) {
+    openMinigame3El.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("minigames/game_3/game_3.html"),
+      });
+
+      window.close();
+    });
+  }
+
+
   // ✅ Upgrade button click handler
   const upgradeBtn = document.getElementById("upgrade");
   if (upgradeBtn) {
@@ -84,20 +112,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // optional: keep popup in sync if state changes while it's open
   chrome.runtime.onMessage.addListener((msg) => {
-    if (msg?.type === "STATE_UPDATED") {
-      updateCharacterIcon();
-    }
-  });
+  if (msg?.type === "STATE_UPDATED") {
+    render(msg.state);
+    updateCharacterIcon();
+  }
+});
 
   document.getElementById("reset")?.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "RESET_STATE" }, (res) => {
     console.log("reset:", res);
     });
-  });
-
-
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === "STATE_UPDATED") render(msg.state);
   });
 
   load(); // call after DOM is ready

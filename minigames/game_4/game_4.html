@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Memory Minigame</title>
+    <link rel="stylesheet" href="./game_4.css" />
+  </head>
+
+  <body>
+    <div class="hud">
+      <div class="left">
+        <div class="title">Memory</div>
+        <div id="status" class="status">Memorize the cards…</div>
+      </div>
+
+      <div class="right">
+        <div class="pill">Matches: <span id="matches">0</span>/<span id="totalPairs">0</span></div>
+        <button id="restart" class="btn">Restart</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div id="hearts" class="hearts-large" aria-label="Lives"></div>
+      <canvas id="game" width="900" height="600"></canvas>
+    </div>
+
+
+    <script type="module" src="./game_4.js"></script>
+  </body>
+</html>
