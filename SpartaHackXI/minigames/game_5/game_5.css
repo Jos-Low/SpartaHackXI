@@ -263,3 +263,35 @@ body {
   width: max-content;      /* more reliable than fit-content here */
   padding: 0 0 250px 0;    /* keep your vertical lift */
 }
+
+#hpBar {
+  margin-top: 6px;
+  width: 260px;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+}
+
+#hpFill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+
+  /* No explicit color requested — so we keep it simple & readable */
+  background: rgba(179, 54, 135, 0.9);
+
+  transition: width 160ms ease;
+}
+
+#hpText {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  opacity: 0.9;
+}

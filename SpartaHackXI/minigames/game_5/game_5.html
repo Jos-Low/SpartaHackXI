@@ -12,9 +12,14 @@
       <div id="hud">
         <div id="hearts" aria-label="Health"></div>
 
-        <div id="scoreBox">
-          <div id="scoreLabel">Score</div>
-          <div id="score">0</div>
+        <div id="scoreBox" aria-label="Sloth Health">
+            <div id="scoreLabel">Sloth Health</div>
+
+            <div id="hpBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                <div id="hpFill"></div>
+            </div>
+
+            <div id="hpText">100 / 100</div>
         </div>
 
         <button id="restartBtn" type="button">Restart</button>

@@ -4,22 +4,23 @@ import { getLevelDef } from "./gameConfig.js";
 const DEFAULT_SETTINGS = {
   goodSites: [],
   badSites: [],
-  //xpPerMinuteGood: 15,
-  //xpPerMinuteBad: 10
+  xpPerMinuteGood: 15,  // ✅ Now configurable
+  xpPerMinuteBad: 10    // ✅ Now configurable
 };
 
-const XP_RATES = Object.freeze({
-  good: 15,
-  bad: 10,
-});
+// ❌ Remove this static object:
+// const XP_RATES = Object.freeze({
+//   good: 15,
+//   bad: 10,
+// });
 
 // NOTE: xpToNext will be set from config on init
 const DEFAULT_STATE = {
   xp: 0,
   level: 1,
   xpToNext: 0,
-  pendingUpgrade: false, // kept for compatibility; not used
-  current: null // { tabId, url, category, startTs, windowFocused, userIdle }
+  pendingUpgrade: false,
+  current: null
 };
 
 let settingsCache = null;
@@ -60,22 +61,51 @@ function hostMatchesList(host, list) {
     return host === e || host.endsWith("." + e);
   });
 }
-
 function categorizeUrl(url, settings) {
-  if (!url || !(url.startsWith("http://") || url.startsWith("https://"))) return "neutral";
+  if (!url || !(url.startsWith("http://") || url.startsWith("https://"))) {
+    console.log('[Categorize] Not HTTP/HTTPS:', url);
+    return "neutral";
+  }
+  
   const host = normalizeHost(url);
-  if (!host) return "neutral";
+  if (!host) {
+    console.log('[Categorize] Could not parse host from:', url);
+    return "neutral";
+  }
 
-  if (hostMatchesList(host, settings.badSites)) return "bad";
-  if (hostMatchesList(host, settings.goodSites)) return "good";
+  console.log('[Categorize] Checking host:', host);
+  console.log('[Categorize] Good sites list:', settings.goodSites);
+  console.log('[Categorize] Bad sites list:', settings.badSites);
+
+  if (hostMatchesList(host, settings.badSites)) {
+    console.log('[Categorize] ❌ Matched BAD site!');
+    return "bad";
+  }
+  
+  if (hostMatchesList(host, settings.goodSites)) {
+    console.log('[Categorize] ✅ Matched GOOD site!');
+    return "good";
+  }
+  
+  console.log('[Categorize] ➖ Neutral (no match)');
   return "neutral";
 }
 
 // ---------- Storage helpers ----------
 async function getSettings() {
   if (settingsCache) return settingsCache;
-  const res = await chrome.storage.sync.get("settings");
-  settingsCache = { ...DEFAULT_SETTINGS, ...(res.settings || {}) };
+  
+  // ✅ Load from the TOP LEVEL keys (not nested in "settings")
+  const res = await chrome.storage.sync.get(['goodSites', 'badSites', 'xpPerMinuteGood', 'xpPerMinuteBad']);
+  
+  settingsCache = {
+    goodSites: res.goodSites || DEFAULT_SETTINGS.goodSites,
+    badSites: res.badSites || DEFAULT_SETTINGS.badSites,
+    xpPerMinuteGood: res.xpPerMinuteGood || DEFAULT_SETTINGS.xpPerMinuteGood,
+    xpPerMinuteBad: res.xpPerMinuteBad || DEFAULT_SETTINGS.xpPerMinuteBad
+  };
+  
+  console.log('[Settings] Loaded from storage:', settingsCache);
   return settingsCache;
 }
 
@@ -117,7 +147,16 @@ async function saveState(patch) {
 async function saveSettings(patch) {
   const s = await getSettings();
   settingsCache = { ...s, ...patch };
-  await chrome.storage.sync.set({ settings: settingsCache });
+  
+  // ✅ Save to TOP LEVEL keys (not nested)
+  await chrome.storage.sync.set({
+    goodSites: settingsCache.goodSites,
+    badSites: settingsCache.badSites,
+    xpPerMinuteGood: settingsCache.xpPerMinuteGood,
+    xpPerMinuteBad: settingsCache.xpPerMinuteBad
+  });
+  
+  console.log('[Settings] Saved to storage:', settingsCache);
 }
 
 // Make sure xpToNext is always correct for the stored level
@@ -141,33 +180,84 @@ async function ensureStateIsConsistent() {
 }
 
 // ---------- Time accounting ----------
-async function finalizeCurrentSession(reason) {
-  const state = await getState();
-  const settings = await getSettings();
-  const curr = state.current;
-  if (!curr) return;
+// ---------- Time accounting ----------
 
-  const now = Date.now();
+// ✅ Track XP increments separately
+let xpIncrementInterval = null;
 
-  if (curr.windowFocused && !curr.userIdle) {
-    const deltaMs = Math.max(0, now - curr.startTs);
-
-    // Optional: ignore tiny flickers
-    if (deltaMs >= 1500) {
-      const minutes = deltaMs / 60000;
-
-      let xpDelta = 0;
-      if (curr.category === "good") xpDelta = minutes * XP_RATES.good * 1000000;
-      if (curr.category === "bad") xpDelta = -minutes * XP_RATES.bad;
-
-      if (xpDelta !== 0) {
-        const newXp = Math.max(0, (state.xp || 0) + xpDelta);
-        await saveState({ xp: newXp });
-      }
-    }
+// ✅ Start XP increment loop (runs every 5 seconds)
+// ✅ Start XP increment loop (runs every 5 seconds)
+function startXpIncrementLoop() {
+  // Clear any existing interval
+  if (xpIncrementInterval) {
+    clearInterval(xpIncrementInterval);
   }
 
+  xpIncrementInterval = setInterval(async () => {
+    const state = await getState();
+    const settings = await getSettings();
+    const curr = state.current;
+
+    console.log('[XP Loop] Running check...', {
+      hasCurrent: !!curr,
+      currentUrl: curr?.url,
+      category: curr?.category,
+      windowFocused: curr?.windowFocused,
+      userIdle: curr?.userIdle,
+      goodSites: settings.goodSites,
+      badSites: settings.badSites,
+      xpPerMinuteGood: settings.xpPerMinuteGood,
+      xpPerMinuteBad: settings.xpPerMinuteBad
+    });
+
+    // Only award XP if session is active and focused
+    if (!curr) {
+      console.log('[XP Loop] ❌ No current session');
+      return;
+    }
+
+    if (!curr.windowFocused) {
+      console.log('[XP Loop] ❌ Window not focused');
+      return;
+    }
+
+    if (curr.userIdle) {
+      console.log('[XP Loop] ❌ User is idle');
+      return;
+    }
+
+    // Only award XP for good/bad sites (not neutral)
+    if (curr.category === 'neutral') {
+      console.log('[XP Loop] ❌ Neutral site (no XP)');
+      return;
+    }
+
+    // ✅ Award XP based on 5 seconds of time
+    const minutesFraction = 5 / 60; // 5 seconds = 0.0833 minutes
+
+    let xpDelta = 0;
+    if (curr.category === 'good') {
+      xpDelta = minutesFraction * (settings.xpPerMinuteGood || 15);
+      console.log('[XP Loop] ✅ Good site detected!');
+    } else if (curr.category === 'bad') {
+      xpDelta = -minutesFraction * (settings.xpPerMinuteBad || 10);
+      console.log('[XP Loop] ⚠️ Bad site detected!');
+    }
+
+    if (xpDelta !== 0) {
+      const newXp = Math.max(0, (state.xp || 0) + xpDelta);
+      await saveState({ xp: newXp });
+      console.log(`[XP] ${curr.category} site: ${xpDelta > 0 ? '+' : ''}${xpDelta.toFixed(2)} XP (total: ${newXp.toFixed(2)})`);
+    }
+  }, 5000); // ✅ Run every 5 seconds
+  
+  console.log('[XP Loop] ✅ Started - will check every 5 seconds');
+}
+
+async function finalizeCurrentSession(reason) {
+  const state = await getState();
   await saveState({ current: null });
+  console.log(`[Session] Ended: ${reason}`);
 }
 
 async function startSessionFromActiveTab() {
@@ -194,13 +284,13 @@ async function startSessionFromActiveTab() {
   };
 
   await saveState({ current });
+  console.log(`[Session] Started: ${category} - ${tab.url}`);
 }
 
 async function refreshSession(reason) {
   await finalizeCurrentSession(reason);
   await startSessionFromActiveTab();
 }
-
 // ---------- Upgrade (open minigame) ----------
 async function startUpgrade() {
   const state = await getState();
@@ -234,21 +324,37 @@ async function startUpgrade() {
 
 
 // ---------- Lifecycle ----------
+// ---------- Lifecycle ----------
 chrome.runtime.onInstalled.addListener(async () => {
-  const existingS = await chrome.storage.sync.get("settings");
-  if (!existingS.settings) await chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
+  // ✅ Check if settings exist at TOP LEVEL
+  const existing = await chrome.storage.sync.get(['goodSites', 'badSites', 'xpPerMinuteGood', 'xpPerMinuteBad']);
+  
+  if (!existing.goodSites || existing.goodSites.length === 0) {
+    console.log('[Install] Setting up defaults...');
+    await chrome.storage.sync.set({
+      goodSites: DEFAULT_SETTINGS.goodSites,
+      badSites: DEFAULT_SETTINGS.badSites,
+      xpPerMinuteGood: DEFAULT_SETTINGS.xpPerMinuteGood,
+      xpPerMinuteBad: DEFAULT_SETTINGS.xpPerMinuteBad
+    });
+  }
 
   const existingState = await chrome.storage.local.get("state");
-  if (!existingState.state) await chrome.storage.local.set({ state: DEFAULT_STATE });
+  if (!existingState.state) {
+    await chrome.storage.local.set({ state: DEFAULT_STATE });
+  }
   
-
   settingsCache = null;
   stateCache = null;
 
   await ensureStateIsConsistent();
   await refreshSession("installed");
+  
+  // ✅ Start XP increment loop
+  startXpIncrementLoop();
+  
+  console.log('[Install] Extension initialized!');
 });
-
 // ---------- Events ----------
 chrome.tabs.onActivated.addListener(() => refreshSession("tab_activated"));
 
@@ -261,10 +367,17 @@ chrome.windows.onFocusChanged.addListener(async (winId) => {
   const curr = state.current;
 
   if (winId === chrome.windows.WINDOW_ID_NONE) {
-    if (curr) await saveState({ current: { ...curr, windowFocused: false } });
-    await finalizeCurrentSession("window_blur");
+    // Window lost focus
+    if (curr) {
+      await saveState({ current: { ...curr, windowFocused: false } });
+      console.log('[Focus] Window blurred - XP paused');
+    }
   } else {
-    if (curr) await saveState({ current: { ...curr, windowFocused: true, startTs: Date.now() } });
+    // Window gained focus
+    if (curr) {
+      await saveState({ current: { ...curr, windowFocused: true } });
+      console.log('[Focus] Window focused - XP resumed');
+    }
     await refreshSession("window_focus");
   }
 });
@@ -278,45 +391,14 @@ chrome.idle.onStateChanged.addListener(async (newState) => {
     await saveState({
       current: {
         ...curr,
-        userIdle: isIdle,
-        startTs: isIdle ? curr.startTs : Date.now()
+        userIdle: isIdle
       }
     });
+    console.log(`[Idle] User ${isIdle ? 'idle' : 'active'} - XP ${isIdle ? 'paused' : 'resumed'}`);
   }
 
-  if (isIdle) await finalizeCurrentSession("idle");
-  else await refreshSession("active");
+  if (!isIdle) await refreshSession("active");
 });
-
-async function resetStateToDefault() {
-  // Stop any in-progress session from modifying XP after reset
-  await finalizeCurrentSession("reset");
-
-  // Build a fresh default state, but make xpToNext consistent with level 1
-  const fresh = {
-    ...DEFAULT_STATE,
-    level: 1,
-    xp: 0,
-    pendingUpgrade: false,
-    current: null
-  };
-  fresh.xpToNext = computeXpToNext(fresh.level);
-
-  // Persist + clear caches
-  await chrome.storage.local.set({ state: fresh });
-  stateCache = null;
-
-  // Broadcast so UI/content scripts update character + bar immediately
-  chrome.runtime.sendMessage({ type: "STATE_UPDATED", state: fresh }).catch(() => {});
-  const tabs = await chrome.tabs.query({});
-  for (const tab of tabs) {
-    if (!tab.id) continue;
-    chrome.tabs.sendMessage(tab.id, { type: "STATE_UPDATED", state: fresh }).catch(() => {});
-  }
-
-  return fresh;
-}
-
 
 // ---------- Messages ----------
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -331,11 +413,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return sendResponse({ ok: true, settings });
     }
 
-    if (msg.type === "SET_SETTINGS") {
-      await saveSettings(msg.settingsPatch || {});
-      await refreshSession("settings_changed");
-      return sendResponse({ ok: true });
-    }
+if (msg.type === "SET_SETTINGS") {
+  const patch = msg.settingsPatch || {};
+  
+  // ✅ Save to top-level keys
+  await chrome.storage.sync.set({
+    goodSites: patch.goodSites,
+    badSites: patch.badSites,
+    xpPerMinuteGood: patch.xpPerMinuteGood,
+    xpPerMinuteBad: patch.xpPerMinuteBad
+  });
+  
+  settingsCache = null; // Clear cache
+  await refreshSession("settings_changed");
+  return sendResponse({ ok: true });
+}
 
     // Character icon lookup (content script uses this)
     if (msg.type === "GET_CHARACTER_ICON") {
