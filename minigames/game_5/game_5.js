@@ -22,18 +22,14 @@ const CONFIG = {
   spawnEveryMin: 650,
   spawnEveryMax: 1050,
 
-  // you said "just over half a second"
   upMs: 560,
   downMs: 560,
 
-  // difficulty knob
   peakHoldMin: 350,
   peakHoldMax: 900,
 
-  // how long to show damage after a hit
   hitShowMs: 420,
 
-  // player animation durations (match your APNG)
   playerSwingMs: 420,
   playerHurtMs: 420,
 
@@ -41,7 +37,7 @@ const CONFIG = {
   slothMaxHealth: 100,
 };
 
-/* --------------- ASSETS (YOUR FILENAMES) --------------- */
+/* --------------- ASSETS --------------- */
 const ASSETS = {
   sloth: {
     up: "trash_can_with_sloth_GOING_UP.png",
@@ -77,7 +73,7 @@ const Critter = Object.freeze({
 
 const Game = {
   running: false,
-  score: CONFIG.slothMaxHealth, // sloth health
+  score: CONFIG.slothMaxHealth,
   hearts: CONFIG.heartsMax,
 
   nextSpawnAt: 0,
@@ -99,6 +95,8 @@ const els = {
   hpBar: document.getElementById("hpBar"),
   hpFill: document.getElementById("hpFill"),
   hpText: document.getElementById("hpText"),
+  winScreen: document.getElementById("winScreen"),
+  loseScreen: document.getElementById("loseScreen"),
 };
 
 /* ------------------ HELPERS ------------------ */
@@ -115,11 +113,10 @@ function clamp(n, a, b) {
   return Math.max(a, Math.min(b, n));
 }
 
-// Restart APNG reliably
 function playAnim(imgEl, src) {
   const s = fullPath(src);
   imgEl.src = "";
-  imgEl.offsetHeight; // reflow
+  imgEl.offsetHeight;
   imgEl.src = s;
 }
 
@@ -143,7 +140,7 @@ function buildHearts() {
   for (let i = 0; i < CONFIG.heartsMax; i++) {
     const img = document.createElement("img");
     img.className = "heart";
-    img.alt = i === 0 ? "Health hearts" : ""; // keep screen readers sane
+    img.alt = i === 0 ? "Health hearts" : "";
     img.draggable = false;
     img.dataset.idx = String(i);
     els.hearts.appendChild(img);
@@ -159,7 +156,6 @@ function renderHearts() {
 }
 
 function renderScore() {
-  // Game.score is now sloth health
   const hp = clamp(Game.score, 0, CONFIG.slothMaxHealth);
   const max = CONFIG.slothMaxHealth;
 
@@ -230,11 +226,9 @@ function initCans() {
       critter: null,
       phase: Phase.NONE,
 
-      // timers
       phaseUntil: 0,
       peakUntil: 0,
 
-      // hittable only during UP + PEAK
       hittable: false,
     };
   });
@@ -263,7 +257,7 @@ function beginPeak(can, now) {
 
 function beginDown(can, now) {
   can.phase = Phase.DOWN;
-  can.hittable = false; // not hittable once down starts
+  can.hittable = false;
 
   playAnim(can.img, ASSETS[can.critter].down);
   can.phaseUntil = now + CONFIG.downMs;
@@ -296,15 +290,20 @@ function loseHeart(now) {
   renderHearts();
   hurt(now);
 
-  if (Game.hearts <= 0) endGame();
+  if (Game.hearts <= 0) endGame(false);
 }
 
-function endGame() {
+function endGame(won) {
   Game.running = false;
-  showOverlay(true);
+  showOverlay(false);
 
-  // reset all cans
   Game.cans.forEach(resetToBase);
+
+  if (won) {
+    els.winScreen.classList.remove('hidden');
+  } else {
+    els.loseScreen.classList.remove('hidden');
+  }
 }
 
 function restart() {
@@ -316,6 +315,8 @@ function restart() {
   renderScore();
   renderHearts();
   showOverlay(false);
+  els.winScreen.classList.add('hidden');
+  els.loseScreen.classList.add('hidden');
 
   setPlayer("idle", now);
 
@@ -332,7 +333,6 @@ function onCanClick(idx) {
   const can = Game.cans[idx];
   if (!can.active) return;
 
-  // Only hittable during UP + PEAK
   if (!can.hittable) return;
 
   swing(now);
@@ -353,11 +353,10 @@ function onCanClick(idx) {
     );
     renderScore();
     if (Game.score <= 0) {
-        endGame(); // sloth defeated
+        endGame(true); // won!
     }
     return;
   }
-
 }
 
 /* ------------------ LOOP ------------------ */
@@ -365,12 +364,10 @@ function loop() {
   const now = performance.now();
 
   if (Game.running) {
-    // Spawn ONLY when no active can
     if (!anyCanActive() && now >= Game.nextSpawnAt) {
       startSpawn(now);
     }
 
-    // Player ends -> idle
     if (Game.playerState !== "idle" && Game.playerUntil && now >= Game.playerUntil) {
       setPlayer("idle", now);
     }
@@ -378,28 +375,23 @@ function loop() {
     for (const can of Game.cans) {
       if (!can.active) continue;
 
-      // UP -> PEAK
       if (can.phase === Phase.UP && now >= can.phaseUntil) {
         beginPeak(can, now);
       }
 
-      // PEAK -> DOWN
       if (can.phase === Phase.PEAK && now >= can.peakUntil) {
         beginDown(can, now);
       }
 
-      // DOWN finished -> base (sloth miss loses heart)
       if (can.phase === Phase.DOWN && now >= can.phaseUntil) {
         const wasSloth = can.critter === Critter.SLOTH;
         resetToBase(can);
 
-        // schedule next spawn now that board is free
         Game.nextSpawnAt = now + randInt(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
 
         if (wasSloth) loseHeart(now);
       }
 
-      // HIT finished -> base
       if (can.phase === Phase.HIT && now >= can.phaseUntil) {
         resetToBase(can);
         Game.nextSpawnAt = now + randInt(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
@@ -417,6 +409,12 @@ function boot() {
   initCans();
 
   els.restartBtn.addEventListener("click", restart);
+
+  // Win/Lose buttons
+  document.getElementById('playAgainWin').onclick = restart;
+  document.getElementById('closeWinBtn').onclick = () => window.close();
+  document.getElementById('tryAgainBtn').onclick = restart;
+  document.getElementById('closeLoseBtn').onclick = () => window.close();
 
   setPlayer("idle", performance.now());
   restart();

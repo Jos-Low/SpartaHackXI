@@ -12,32 +12,27 @@ const ui = {
   restart: document.getElementById("restart"),
 };
 
+const winScreen = document.getElementById("winScreen");
+const loseScreen = document.getElementById("loseScreen");
+
 // ------------------------
 // Customization
 // ------------------------
 
-// Pick difficulty by grid size.
-// You can change this to 4x3, 4x4, 6x4, etc.
 const GRID_COLS = 4;
-const GRID_ROWS = 3; // 4x4 = 16 cards = 8 pairs
+const GRID_ROWS = 3;
 
-// Lives and preview timing (ms)
 const START_LIVES = 3;
-const PREVIEW_MS = 5000;     // how long to keep face-up before flipping down
-const BETWEEN_FLIPS_MS = 400; // small delay before enabling input
+const PREVIEW_MS = 5000;
+const BETWEEN_FLIPS_MS = 400;
 
-// Card style
 const CARD_RADIUS = 14;
 const CARD_GAP = 14;
 const CARD_BACK_COLOR = "rgba(255,255,255,0.10)";
 const CARD_BACK_BORDER = "rgba(255,255,255,0.18)";
 const CARD_FACE_BORDER = "rgba(255,255,255,0.22)";
 
-// IMPORTANT: Replace these with your custom images later.
-// Put your files in: minigames/assets/ (or wherever you like),
-// then update the paths here.
 const FACE_IMAGE_PATHS = [
-  // Needs at least (GRID_COLS*GRID_ROWS)/2 unique images
   "../../assets/game_4/GAME_4_baby_sloth.png",
   "../../assets/game_4/GAME_4_chad_sloth.png",
   "../../assets/game_4/GAME_4_clown_sloth.png",
@@ -51,10 +46,8 @@ const HEART_FULL_PATH  = "../../assets/game_4/Full_Heart.png";
 const HEART_EMPTY_PATH = "../../assets/game_4/Broken_Heart.png";
 
 const BG_IMAGE_PATH = "../../assets/game_4/GAME_4_BG.png";
-let bgImg = null; // HTMLImageElement for background
+let bgImg = null;
 
-// If you don't have images yet, we auto-generate colored placeholders.
-// Keep this true during development; set false once you add real images.
 const ALLOW_PLACEHOLDER_FACES = false;
 
 // ------------------------
@@ -101,7 +94,6 @@ function fitRectKeepAspect(srcW, srcH, dstX, dstY, dstW, dstH) {
 }
 
 function assetUrl(relPath) {
-  // Resolves relative to this JS file (works great in MV3 module pages)
   return new URL(relPath, import.meta.url).href;
 }
 
@@ -119,7 +111,6 @@ function renderHearts() {
     heartsEl.appendChild(img);
   }
 }
-
 
 // ------------------------
 // Assets
@@ -146,7 +137,6 @@ function makePlaceholderCanvas(seed, w = 256, h = 256) {
   c.width = w; c.height = h;
   const g = c.getContext("2d");
 
-  // deterministic-ish color from seed
   const hue = (seed * 47) % 360;
   g.fillStyle = `hsl(${hue} 70% 45%)`;
   g.fillRect(0, 0, w, h);
@@ -177,8 +167,8 @@ const totalPairs = totalCards / 2;
 
 ui.totalPairs.textContent = String(totalPairs);
 
-let faces = []; // array of HTMLImageElement or Canvas for placeholders
-let backImg = null; // HTMLImageElement for card back
+let faces = [];
+let backImg = null;
 
 class Card {
   constructor(id, faceIndex) {
@@ -187,11 +177,11 @@ class Card {
 
     this.x = 0; this.y = 0; this.w = 0; this.h = 0;
 
-    this.state = "faceUp"; // "faceDown" | "faceUp" | "matched"
-    this.anim = 1;         // 0..1 (flip progress, 1 = fully face-up)
+    this.state = "faceUp";
+    this.anim = 1;
     this.targetAnim = 1;
 
-    this.locked = false;   // during animation
+    this.locked = false;
   }
 
   contains(px, py) {
@@ -220,8 +210,7 @@ class Card {
   }
 
   update(dt) {
-    // Smooth flip animation
-    const speed = 10; // higher = snappier
+    const speed = 10;
     const diff = this.targetAnim - this.anim;
     if (Math.abs(diff) < 0.001) {
       this.anim = this.targetAnim;
@@ -232,69 +221,59 @@ class Card {
   }
 
   draw(ctx) {
-    // Flip effect: scale X based on anim value.
-    // anim 0 -> back, anim 1 -> face
     const t = this.anim;
-    const flip = Math.abs(t - 0.5) * 2; // 1 at ends, 0 at middle
+    const flip = Math.abs(t - 0.5) * 2;
 
     ctx.save();
 
-    // card center
     const cx = this.x + this.w / 2;
     const cy = this.y + this.h / 2;
 
-    // squash X near midpoint to simulate flip
     ctx.translate(cx, cy);
     ctx.scale(clamp(flip, 0.05, 1), 1);
     ctx.translate(-cx, -cy);
 
-    // Decide which side to render:
-    // If t < 0.5 we show the back; else show face.
     const showFace = t >= 0.5;
 
-    // Base card
     roundRectPath(ctx, this.x, this.y, this.w, this.h, CARD_RADIUS);
 
     if (!showFace) {
-  // Draw custom back image if available
-  const pad = 0;
-  if (backImg) {
-    ctx.save();
-    roundRectPath(
-      ctx,
-      this.x + pad,
-      this.y + pad,
-      this.w - pad * 2,
-      this.h - pad * 2,
-      12
-    );
-    ctx.clip();
+      const pad = 0;
+      if (backImg) {
+        ctx.save();
+        roundRectPath(
+          ctx,
+          this.x + pad,
+          this.y + pad,
+          this.w - pad * 2,
+          this.h - pad * 2,
+          12
+        );
+        ctx.clip();
 
-    const rect = fitRectKeepAspect(
-      backImg.width ?? backImg.naturalWidth ?? 256,
-      backImg.height ?? backImg.naturalHeight ?? 256,
-      this.x + pad,
-      this.y + pad,
-      this.w - pad * 2,
-      this.h - pad * 2
-    );
+        const rect = fitRectKeepAspect(
+          backImg.width ?? backImg.naturalWidth ?? 256,
+          backImg.height ?? backImg.naturalHeight ?? 256,
+          this.x + pad,
+          this.y + pad,
+          this.w - pad * 2,
+          this.h - pad * 2
+        );
 
-    ctx.drawImage(backImg, rect.x, rect.y, rect.w, rect.h);
-    ctx.restore();
-  } else {
-    // Fallback pattern if back image missing
-    ctx.save();
-    ctx.clip();
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = "rgba(255,255,255,0.18)";
-    const step = 18;
-    for (let y = this.y - this.h; y < this.y + this.h * 2; y += step) {
-      ctx.fillRect(this.x - this.w, y, this.w * 3, 6);
-    }
-    ctx.restore();
-  }
-} else {
-      // draw image
+        ctx.drawImage(backImg, rect.x, rect.y, rect.w, rect.h);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.clip();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = "rgba(255,255,255,0.18)";
+        const step = 18;
+        for (let y = this.y - this.h; y < this.y + this.h * 2; y += step) {
+          ctx.fillRect(this.x - this.w, y, this.w * 3, 6);
+        }
+        ctx.restore();
+      }
+    } else {
       const pad = 0;
       const img = faces[this.faceIndex];
 
@@ -314,7 +293,6 @@ class Card {
       ctx.drawImage(img, rect.x, rect.y, rect.w, rect.h);
       ctx.restore();
 
-      // matched glow
       if (this.state === "matched") {
         ctx.save();
         ctx.globalAlpha = 0.18;
@@ -348,14 +326,12 @@ function setLives(n) {
   renderHearts();
 }
 
-
 function setMatches(n) {
   matchedPairs = n;
   ui.matches.textContent = String(matchedPairs);
 }
 
 function layoutCards() {
-  // Compute card sizes to fit within canvas with margins
   const margin = 0;
   const usableW = canvas.width - margin * 2;
   const usableH = canvas.height - margin * 2;
@@ -392,6 +368,9 @@ function buildDeck() {
 }
 
 function resetGame() {
+  winScreen.classList.add('hidden');
+  loseScreen.classList.add('hidden');
+  
   setLives(START_LIVES);
   setMatches(0);
   firstPick = null;
@@ -401,7 +380,6 @@ function resetGame() {
 
   buildDeck();
 
-  // start face-up preview
   for (const c of cards) {
     c.state = "faceUp";
     c.anim = 1;
@@ -411,7 +389,6 @@ function resetGame() {
 
   setStatus("Memorize the cards…");
 
-  // After preview, flip all down
   setTimeout(() => {
     for (const c of cards) c.flipDown();
     setStatus("Pick two cards!");
@@ -422,7 +399,6 @@ function resetGame() {
 }
 
 function cardAtPoint(px, py) {
-  // Prefer top-most (though all are non-overlapping)
   for (let i = cards.length - 1; i >= 0; i--) {
     if (cards[i].contains(px, py)) return cards[i];
   }
@@ -436,7 +412,7 @@ function canSelect(card) {
   if (card.locked) return false;
   if (card.state === "matched") return false;
   if (card === firstPick) return false;
-  if (card.state === "faceUp") return false; // already up (during picks)
+  if (card.state === "faceUp") return false;
   return true;
 }
 
@@ -446,7 +422,6 @@ async function resolveTurn() {
   resolving = true;
   inputEnabled = false;
 
-  // brief pause so the player can see second flip
   await new Promise((r) => setTimeout(r, 450));
 
   const a = firstPick;
@@ -460,8 +435,7 @@ async function resolveTurn() {
 
     if (matchedPairs + 1 >= totalPairs) {
       setStatus("You win! 🎉");
-      // You can message your extension here if needed (e.g. award upgrade)
-      // chrome.runtime.sendMessage({ type: "MINIGAME_WIN" });
+      winScreen.classList.remove('hidden');
     }
   } else {
     a.flipDown();
@@ -470,8 +444,8 @@ async function resolveTurn() {
     setStatus("Nope — lose 1 life.");
 
     if (lives - 1 <= 0) {
-      setStatus("Game over. Try again!");
-      // Optional: disable input until restart
+      setStatus("Game over!");
+      loseScreen.classList.remove('hidden');
     }
   }
 
@@ -524,19 +498,7 @@ function loop(now) {
 function drawBackground() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 1) Draw background image (cover the whole canvas)
   if (bgImg) {
-    const rect = fitRectKeepAspect(
-      bgImg.width ?? bgImg.naturalWidth ?? canvas.width,
-      bgImg.height ?? bgImg.naturalHeight ?? canvas.height,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    // "cover" effect (crop to fill): use aspect-fit helper but expand to cover
-    // We'll do cover manually:
     const srcW = bgImg.width ?? bgImg.naturalWidth ?? canvas.width;
     const srcH = bgImg.height ?? bgImg.naturalHeight ?? canvas.height;
     const srcAspect = srcW / srcH;
@@ -544,13 +506,11 @@ function drawBackground() {
 
     let drawW, drawH, drawX, drawY;
     if (srcAspect > dstAspect) {
-      // image is wider -> match height, crop width
       drawH = canvas.height;
       drawW = drawH * srcAspect;
       drawX = (canvas.width - drawW) / 2;
       drawY = 0;
     } else {
-      // image is taller -> match width, crop height
       drawW = canvas.width;
       drawH = drawW / srcAspect;
       drawX = 0;
@@ -559,11 +519,9 @@ function drawBackground() {
 
     ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
 
-    // optional: darken slightly for readability
     ctx.fillStyle = "rgba(0,0,0,0.18)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   } else {
-    // Fallback: your existing subtle vignette
     const grd = ctx.createRadialGradient(
       canvas.width * 0.35, canvas.height * 0.25, 80,
       canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.9
@@ -574,7 +532,6 @@ function drawBackground() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // 2) Optional: re-add a light vignette on top (nice with images)
   const vignette = ctx.createRadialGradient(
     canvas.width * 0.5, canvas.height * 0.45, 120,
     canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.85
@@ -584,7 +541,6 @@ function drawBackground() {
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
-
 
 function draw() {
   drawBackground();
@@ -596,14 +552,12 @@ function draw() {
 // ------------------------
 
 async function init() {
-  // Ensure we have enough unique faces
   if (FACE_IMAGE_PATHS.length < totalPairs && !ALLOW_PLACEHOLDER_FACES) {
     throw new Error(
       `Need at least ${totalPairs} unique images in FACE_IMAGE_PATHS, or set ALLOW_PLACEHOLDER_FACES=true`
     );
   }
 
-  // Load faces (use placeholders if missing)
   let loaded = [];
   try {
     const needed = FACE_IMAGE_PATHS.slice(0, totalPairs);
@@ -614,17 +568,17 @@ async function init() {
   }
 
   try {
-  [backImg] = await loadImages([BACK_IMAGE_PATH]);
+    [backImg] = await loadImages([BACK_IMAGE_PATH]);
   } catch (e) {
     console.error(e);
-    backImg = null; // fallback to pattern if missing
+    backImg = null;
   }
 
   try {
-  [bgImg] = await loadImages([BG_IMAGE_PATH]);
+    [bgImg] = await loadImages([BG_IMAGE_PATH]);
   } catch (e) {
     console.error(e);
-    bgImg = null; // fallback to gradient if missing
+    bgImg = null;
   }
 
   if (loaded.length === totalPairs) {
@@ -635,6 +589,12 @@ async function init() {
 
   ui.restart.addEventListener("click", resetGame);
   canvas.addEventListener("click", handleClick);
+
+  // Win/Lose buttons
+  document.getElementById('playAgainWin').onclick = resetGame;
+  document.getElementById('closeWinBtn').onclick = () => window.close();
+  document.getElementById('tryAgainBtn').onclick = resetGame;
+  document.getElementById('closeLoseBtn').onclick = () => window.close();
 
   renderHearts();
 

@@ -67,7 +67,6 @@ canvas {
   padding: 3px;
 }
 
-
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -76,20 +75,84 @@ canvas {
   white-space: nowrap; border: 0;
 }
 
-/* =========================
-   LARGE HEARTS (LIVES)
-   ========================= */
-
+/* Hearts */
 .hearts-large {
   display: flex;
   justify-content: center;
   gap: 14px;
-  margin-bottom: 10px; /* space between hearts and cards */
+  margin-bottom: 10px;
   margin-top: 10px;
 }
 
 .hearts-large img {
-  width: 150px;   /* 👈 BIG hearts */
+  width: 150px;
   height: 150px;
   image-rendering: auto;
 }
+
+/* Win/Lose Overlays */
+.game-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 15, 25, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.result-box {
+  background: var(--panel);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 40px 60px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-radius: 18px;
+}
+
+.result-box h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.result-box h1.win { color: #4dff9a; }
+.result-box h1.lose { color: #ff4d4d; }
+
+.result-box p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.game-btn {
+  background: rgba(255,255,255,0.10);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin: 0 8px;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+
+.game-btn:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+.game-btn.primary {
+  background: #4da3ff;
+  border-color: #4da3ff;
+}
+
+.game-btn.primary:hover {
+  background: #357abd;
+}
+
+.trophy { font-size: 60px; margin-bottom: 20px; }
+
+.hidden { display: none !important; }

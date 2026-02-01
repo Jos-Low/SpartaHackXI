@@ -25,6 +25,26 @@
       <canvas id="game" width="900" height="600"></canvas>
     </div>
 
+    <!-- Win Screen -->
+    <div id="winScreen" class="game-overlay hidden">
+      <div class="result-box">
+        <div class="trophy">🏆</div>
+        <h1 class="win">✨ YOU WON! ✨</h1>
+        <p>All pairs matched!</p>
+        <button class="game-btn primary" id="playAgainWin">PLAY AGAIN</button>
+        <button class="game-btn" id="closeWinBtn">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="loseScreen" class="game-overlay hidden">
+      <div class="result-box">
+        <h1 class="lose">💔 GAME OVER</h1>
+        <p>You ran out of lives!</p>
+        <button class="game-btn primary" id="tryAgainBtn">TRY AGAIN</button>
+        <button class="game-btn" id="closeLoseBtn">CLOSE</button>
+      </div>
+    </div>
 
     <script type="module" src="./game_4.js"></script>
   </body>

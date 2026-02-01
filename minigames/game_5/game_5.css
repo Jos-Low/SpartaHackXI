@@ -12,7 +12,7 @@
 
   --hud-pad: 10px;
 
-  --heart-size: 128px;     /* ✅ bigger hearts */
+  --heart-size: 128px;
   --heart-gap: 12px;
 
   --hud-blur: 10px;
@@ -35,7 +35,6 @@ body {
   background: #0b0f14;
 }
 
-/* Move everything UP (no vertical centering) */
 #wrap {
   height: 100%;
   display: grid;
@@ -59,8 +58,6 @@ body {
   pointer-events: none;
 }
 
-
-
 #hearts {
   position: absolute;
   left: 14px;
@@ -77,7 +74,6 @@ body {
   object-fit: contain;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
 }
-
 
 #scoreBox {
   position: absolute;
@@ -108,12 +104,11 @@ body {
 #score {
   margin-top: 2px;
   font-weight: 900;
-  font-size: 28px; /* ✅ bigger */
+  font-size: 28px;
   line-height: 1;
   color: #ffffff;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
-
 
 #restartBtn {
   position: absolute;
@@ -153,10 +148,9 @@ body {
   outline-offset: 2px;
 }
 
-
 #playfield {
   width: min(var(--max-width), 100%);
-  height: min(680px, calc(100vh - 20px)); /* ✅ HUD no longer above, shrink less */
+  height: min(680px, calc(100vh - 20px));
   position: relative;
   border-radius: 18px;
   overflow: hidden;
@@ -165,8 +159,6 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
-
-
 
 .can {
   width: var(--can-size);
@@ -184,25 +176,23 @@ body {
   height: auto;
   display: block;
   pointer-events: none;
-  /* No transform/movement — APNG handles motion */
 }
 
-/* Player sits lower-left; can adjust if desired */
 #player {
   position: absolute;
-  right: 20px;               /* anchor to right */
-  bottom: 0px;              /* anchor to bottom */
-  left: auto;                /* make sure left isn't used */
+  right: 20px;
+  bottom: 0px;
+  left: auto;
 
   height: var(--player-height);
-  width: auto;               /* let width follow the sprite */
+  width: auto;
   pointer-events: none;
   overflow: visible;
-  z-index: 5;                /* stays above background/cans */
+  z-index: 5;
 }
 
 #playerSprite {
-  position: relative;        /* simpler since #player is anchored */
+  position: relative;
   height: 100%;
   width: auto;
   object-fit: contain;
@@ -211,7 +201,6 @@ body {
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
 }
 
-/* overlay */
 #overlay {
   position: absolute;
   inset: 0;
@@ -241,11 +230,9 @@ body {
   opacity: 0.85;
 }
 
-
 #lanes {
   position: absolute;
 
-  /* IMPORTANT: don't use inset:0 */
   left: 50%;
   bottom: 0;
   top: auto;
@@ -259,9 +246,8 @@ body {
 
   gap: var(--lane-gap);
 
-  /* Make the container shrink to the cans */
-  width: max-content;      /* more reliable than fit-content here */
-  padding: 0 0 250px 0;    /* keep your vertical lift */
+  width: max-content;
+  padding: 0 0 250px 0;
 }
 
 #hpBar {
@@ -281,7 +267,6 @@ body {
   width: 100%;
   border-radius: 999px;
 
-  /* No explicit color requested — so we keep it simple & readable */
   background: rgba(179, 54, 135, 0.9);
 
   transition: width 160ms ease;
@@ -295,3 +280,75 @@ body {
   color: #ffffff;
   opacity: 0.9;
 }
+
+/* Win/Lose Overlays */
+.game-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 15, 20, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.result-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 40px 60px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.result-box h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.result-box h1.win { color: #4dff9a; }
+.result-box h1.lose { color: #ff4d4d; }
+
+.result-box p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 30px;
+}
+
+.game-btn {
+  background: rgba(255,255,255,0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin: 0 8px;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+
+.game-btn:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.28);
+  transform: translateY(-1px);
+}
+
+.game-btn.primary {
+  background: #4da3ff;
+  border-color: #4da3ff;
+}
+
+.game-btn.primary:hover {
+  background: #357abd;
+}
+
+.trophy { font-size: 60px; margin-bottom: 20px; }
+
+.hidden { display: none !important; }
