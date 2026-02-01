@@ -82,6 +82,20 @@ document.addEventListener("DOMContentLoaded", () => {
   //   });
   // }
 
+  const openMinigame5El = document.getElementById("openMinigame5");
+    if (openMinigame5El) {
+      openMinigame5El.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        chrome.tabs.create({
+          url: chrome.runtime.getURL("minigames/game_5/game_5.html"),
+        });
+
+        window.close();
+      });
+    }
+
+
 
   // ✅ Upgrade button click handler
   const upgradeBtn = document.getElementById("upgrade");

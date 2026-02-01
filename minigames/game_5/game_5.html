@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game 5 - Trash Can Whack</title>
+    <link rel="stylesheet" href="./game_5.css" />
+  </head>
+
+  <body>
+    <div id="wrap">
+      <div id="hud">
+        <div id="hearts" aria-label="Health"></div>
+
+        <div id="scoreBox">
+          <div id="scoreLabel">Score</div>
+          <div id="score">0</div>
+        </div>
+
+        <button id="restartBtn" type="button">Restart</button>
+      </div>
+
+      <div id="playfield" role="application" aria-label="Whack-a-mole style game">
+        <div id="lanes">
+          <button class="can" id="can0" type="button" aria-label="Trashcan 1">
+            <img class="canImg" alt="" draggable="false" />
+          </button>
+
+          <button class="can" id="can1" type="button" aria-label="Trashcan 2">
+            <img class="canImg" alt="" draggable="false" />
+          </button>
+
+          <button class="can" id="can2" type="button" aria-label="Trashcan 3">
+            <img class="canImg" alt="" draggable="false" />
+          </button>
+        </div>
+
+        <div id="player">
+          <img id="playerSprite" alt="Player" draggable="false" />
+        </div>
+
+        <div id="overlay" class="hidden">
+          <div id="overlayCard">
+            <div id="overlayTitle">Game Over</div>
+            <div id="overlaySub">Press Restart to play again</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./game_5.js"></script>
+  </body>
+</html>
