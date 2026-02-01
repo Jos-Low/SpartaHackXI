@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flower Jump Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./game_1.css">
 </head>
 <body>
@@ -19,11 +22,17 @@
       </div>
     </div>
 
-    <div id="overlay">
-      <h1 id="overlay-title">🌸 FLOWER JUMP</h1>
-      <p id="overlay-subtitle">Avoid obstacles and butterflies!</p>
-      <p id="final-score"></p>
-      <button id="start-btn">START GAME</button>
+    <!-- End game overlay -->
+    <div id="overlay" class="hidden">
+      <div class="result-container">
+        <h1 id="overlay-title">GAME OVER</h1>
+        <p id="overlay-subtitle">Better luck next time!</p>
+        <div id="final-score"></div>
+        <div class="button-group">
+          <button class="game-btn primary" id="restart-btn">PLAY AGAIN</button>
+          <button class="game-btn" id="close-btn">CLOSE</button>
+        </div>
+      </div>
     </div>
   </div>
 

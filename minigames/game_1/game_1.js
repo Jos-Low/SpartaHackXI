@@ -1,3 +1,4 @@
+
 'use strict';
 
 // ============================================
@@ -55,7 +56,7 @@ Object.values(assets).forEach(img => {
 // GAME CONSTANTS
 // ============================================
 const GROUND_Y = H - 140; // Ground starts at y=400
-const MAX_SCORE = 250;
+const MAX_SCORE = 200;    // ✅ Changed from 250 to 200
 const GRAVITY = 0.7;
 const JUMP_POWER = -15;
 
@@ -161,10 +162,7 @@ function drawPlayer() {
 }
 
 function jump() {
-  if (gameState.gameOver || gameState.gameWon) {
-    restart();
-    return;
-  }
+  if (gameState.gameOver || gameState.gameWon) return;
   
   if (!gameState.started) {
     gameState.started = true;
@@ -210,7 +208,6 @@ function updateObstacles() {
   // Remove off-screen obstacles
   obstacles = obstacles.filter(obs => obs.x > -80);
 }
-
 
 function drawObstacles() {
   if (assetsLoaded < totalAssets) return;
@@ -463,11 +460,13 @@ function winGame() {
   gameState.gameWon = true;
   if (gameState.score > gameState.best) gameState.best = gameState.score;
   
-  document.getElementById('overlay-title').textContent = '✨ VICTORY! ✨';
+  const titleEl = document.getElementById('overlay-title');
+  titleEl.textContent = '✨ VICTORY! ✨';
+  titleEl.className = 'win';
+  
   document.getElementById('overlay-subtitle').textContent = 'You completed the game!';
-  document.getElementById('final-score').textContent = `SCORE: ${Math.floor(gameState.score)}`;
+  document.getElementById('final-score').textContent = `FINAL SCORE: ${Math.floor(gameState.score)}`;
   document.getElementById('final-score').style.display = 'block';
-  document.getElementById('start-btn').textContent = 'PLAY AGAIN';
   document.getElementById('overlay').classList.remove('hidden');
 }
 
@@ -475,11 +474,13 @@ function endGame() {
   gameState.gameOver = true;
   if (gameState.score > gameState.best) gameState.best = gameState.score;
   
-  document.getElementById('overlay-title').textContent = '💀 GAME OVER';
-  document.getElementById('overlay-subtitle').textContent = 'Try again!';
-  document.getElementById('final-score').textContent = `SCORE: ${Math.floor(gameState.score)}`;
+  const titleEl = document.getElementById('overlay-title');
+  titleEl.textContent = '💀 GAME OVER';
+  titleEl.className = 'lose';
+  
+  document.getElementById('overlay-subtitle').textContent = 'Better luck next time!';
+  document.getElementById('final-score').textContent = `FINAL SCORE: ${Math.floor(gameState.score)}`;
   document.getElementById('final-score').style.display = 'block';
-  document.getElementById('start-btn').textContent = 'PLAY AGAIN';
   document.getElementById('overlay').classList.remove('hidden');
 }
 
@@ -491,7 +492,7 @@ function restart() {
     started: true,
     gameWon: false,
     animFrame: 0,
-    best: gameState.best // Keep best score
+    best: gameState.best
   };
   
   player = createPlayer();
@@ -500,10 +501,7 @@ function restart() {
   particles = [];
   bgOffsets = { sky: 0, trees: 0, ground: 0 };
   
-  document.getElementById('overlay-title').textContent = '🌸 FLOWER JUMP';
-  document.getElementById('overlay-subtitle').textContent = 'Avoid obstacles and butterflies!';
   document.getElementById('final-score').style.display = 'none';
-  document.getElementById('start-btn').textContent = 'START GAME';
   document.getElementById('overlay').classList.add('hidden');
 }
 
@@ -513,19 +511,34 @@ function restart() {
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
+    if (!gameState.gameOver && !gameState.gameWon) {
+      jump();
+    }
+  }
+});
+
+canvas.addEventListener('click', () => {
+  if (!gameState.gameOver && !gameState.gameWon) {
     jump();
   }
 });
 
-canvas.addEventListener('click', jump);
-
-document.getElementById('start-btn').addEventListener('click', (e) => {
+document.getElementById('restart-btn').addEventListener('click', (e) => {
   e.preventDefault();
-  jump();
+  restart();
+});
+
+document.getElementById('close-btn').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.close();
 });
 
 // ============================================
 // INITIALIZE
 // ============================================
 player = createPlayer();
+
+// ✅ Auto-start the game immediately
+gameState.started = true;
+
 gameLoop();
