@@ -4,7 +4,8 @@
 // - No crossings / no shared cells
 // - Mouse + touch via Pointer Events
 // - When a level is solved, show "Next Level" button.
-// - After final level, show "Good Game!" and lock UI.
+// - After final level, show "You Won!" screen.
+// - Timers: Level 1 = 15s, Level 2 = 20s, Level 3 = 30s
 
 // ---------- Level pack ----------
 const LEVELS = [
@@ -49,16 +50,25 @@ const LEVELS = [
 
 // ---------- DOM (null-safe) ----------
 const boardEl = document.getElementById("board");
-const levelSelectEl = document.getElementById("levelSelect"); // optional
-const statusEl = document.getElementById("status"); // optional
-const progressEl = document.getElementById("progress"); // optional
-const resetBtn = document.getElementById("resetBtn"); // optional
-const clearBtn = document.getElementById("clearBtn"); // optional
-const nextBtn = document.getElementById("nextBtn"); // ✅ new
+const levelSelectEl = document.getElementById("levelSelect");
+const statusEl = document.getElementById("status");
+const progressEl = document.getElementById("progress");
+const resetBtn = document.getElementById("resetBtn");
+const clearBtn = document.getElementById("clearBtn");
+const nextBtn = document.getElementById("nextBtn");
+const timerEl = document.getElementById("timer");
+const winScreen = document.getElementById("winScreen");
+const loseScreen = document.getElementById("loseScreen");
 
 // ---------- Campaign state ----------
 let campaignComplete = false;
-let levelSolved = false; // controls next button visibility
+let levelSolved = false;
+
+// ---------- Timer ----------
+const LEVEL_TIMES = [15, 20, 30]; // seconds for levels 1, 2, 3
+let timeLeft = 0;
+let timerInterval = null;
+let timeFailed = false;
 
 // ---------- Pointer hover helper ----------
 let lastHoverIdx = null;
@@ -79,9 +89,9 @@ let level = LEVELS[levelIndex];
 
 let cellEls = [];
 let owner = [];
-let endpoints = new Map(); // "r,c" -> { colorId, which }
-let endpointCells = new Map(); // colorId -> {aIdx,bIdx}
-let paths = new Map(); // colorId -> array of cell indices
+let endpoints = new Map();
+let endpointCells = new Map();
+let paths = new Map();
 
 // Active drawing
 let isDrawing = false;
@@ -143,6 +153,50 @@ function countCompleted() {
 
 function isWin() {
   return countCompleted() === level.colors.length;
+}
+
+// ---------- Timer functions ----------
+function startTimer() {
+  stopTimer();
+  timeFailed = false;
+  timeLeft = LEVEL_TIMES[levelIndex];
+  updateTimerDisplay();
+  
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    
+    if (timeLeft <= 5 && timerEl) {
+      timerEl.classList.add('warning');
+    }
+    
+    if (timeLeft <= 0) {
+      onTimerExpired();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  if (timerEl) timerEl.classList.remove('warning');
+}
+
+function updateTimerDisplay() {
+  if (!timerEl) return;
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  timerEl.textContent = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function onTimerExpired() {
+  stopTimer();
+  timeFailed = true;
+  isDrawing = false;
+  loseScreen.classList.remove('hidden');
+  lockGameUI();
 }
 
 // ---------- Rendering ----------
@@ -252,6 +306,8 @@ function updateUI() {
   const done = countCompleted();
   if (progressEl) progressEl.textContent = `${done}/${level.colors.length} connected`;
 
+  if (timeFailed) return;
+
   if (campaignComplete) {
     setStatus("🎉 Good Game!");
     showNextButton(false);
@@ -260,12 +316,12 @@ function updateUI() {
 
   if (isWin()) {
     levelSolved = true;
+    stopTimer();
 
     if (levelIndex >= LEVELS.length - 1) {
-      // finished last level
+      // Finished last level - show win screen!
       campaignComplete = true;
-      setStatus("🎉 Good Game!");
-      showNextButton(false);
+      winScreen.classList.remove('hidden');
       lockGameUI();
       return;
     }
@@ -325,7 +381,7 @@ function onPointerMove(e) {
 }
 
 function onPointerDown(e) {
-  if (campaignComplete) return;
+  if (campaignComplete || timeFailed) return;
   e.preventDefault();
 
   const idx = Number(e.currentTarget.dataset.idx);
@@ -333,7 +389,6 @@ function onPointerDown(e) {
   const ep = endpoints.get(keyOf(r, c));
   const clickedOwner = owner[idx];
 
-  // Start only if endpoint or existing path cell
   if (!ep && !clickedOwner) return;
 
   isDrawing = true;
@@ -361,7 +416,6 @@ function stepToIdx(idx) {
   if (!isDrawing) return;
   if (idx === lastIdx) return;
 
-  // Backtracking one step
   const prevIdx = activePath.length >= 2 ? activePath[activePath.length - 2] : null;
   if (prevIdx !== null && idx === prevIdx) {
     const removed = activePath.pop();
@@ -374,7 +428,6 @@ function stepToIdx(idx) {
 
   if (!canStepInto(idx)) return;
 
-  // If stepping into earlier cell of same path, trim back
   const existingPos = activePath.indexOf(idx);
   if (existingPos !== -1) {
     for (let i = activePath.length - 1; i > existingPos; i--) {
@@ -444,25 +497,25 @@ function loadLevel(i) {
   levelIndex = i;
   level = LEVELS[levelIndex];
 
-  // stop any mid-draw
   isDrawing = false;
   activeColor = null;
   activePath = [];
   lastIdx = null;
   lastHoverIdx = null;
 
-  // reset win state for this level
   levelSolved = false;
   showNextButton(false);
 
   rebuildBoard();
   buildLevelSelect();
+  
+  startTimer();
 }
 
-// ---------- Buttons (null-safe) ----------
+// ---------- Buttons ----------
 if (resetBtn) {
   resetBtn.addEventListener("click", () => {
-    if (campaignComplete) return;
+    if (campaignComplete || timeFailed) return;
     for (const c of level.colors) clearPath(c.id);
     owner.fill(null);
     redrawAll();
@@ -472,7 +525,7 @@ if (resetBtn) {
 
 if (clearBtn) {
   clearBtn.addEventListener("click", () => {
-    if (campaignComplete) return;
+    if (campaignComplete || timeFailed) return;
     for (const c of level.colors) clearPath(c.id);
     owner.fill(null);
     redrawAll();
@@ -492,13 +545,31 @@ if (nextBtn) {
   });
 }
 
-// Optional dropdown switching (if you re-enable it)
 if (levelSelectEl) {
   levelSelectEl.addEventListener("change", (e) => {
     if (campaignComplete) return;
     const i = Number(e.target.value);
     loadLevel(i);
   });
+}
+
+// Win/Lose screen buttons
+if (document.getElementById('closeWinBtn')) {
+  document.getElementById('closeWinBtn').onclick = () => window.close();
+}
+
+if (document.getElementById('retryBtn')) {
+  document.getElementById('retryBtn').onclick = () => {
+    loseScreen.classList.add('hidden');
+    timeFailed = false;
+    if (resetBtn) resetBtn.disabled = false;
+    if (clearBtn) clearBtn.disabled = false;
+    loadLevel(levelIndex);
+  };
+}
+
+if (document.getElementById('closeLoseBtn')) {
+  document.getElementById('closeLoseBtn').onclick = () => window.close();
 }
 
 // Global pointer events

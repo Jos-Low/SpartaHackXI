@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XP Buddy Jump!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -13,7 +16,7 @@
       align-items: center;
       min-height: 100vh;
       background: #1a1a2e;
-      font-family: Arial, sans-serif;
+      font-family: 'Press Start 2P', monospace;
     }
     
     #gameCanvas {
@@ -22,45 +25,7 @@
       background: #87CEEB;
     }
     
-    #startScreen, #gameOverScreen, #winScreen {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.9);
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      z-index: 1000;
-    }
-    
     .hidden { display: none !important; }
-    
-    h1 { color: #4caf50; margin-bottom: 20px; }
-    h1.gold { color: #ffd700; }
-    p { color: white; margin-bottom: 20px; }
-    
-    button {
-      padding: 15px 40px;
-      font-size: 20px;
-      background: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    
-    button:hover { background: #66bb6a; }
-    
-    button.gold {
-      background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-      color: #000;
-    }
-    
-    button.gold:hover {
-      background: linear-gradient(135deg, #ffec80 0%, #ffd700 100%);
-    }
     
     #score { 
       position: absolute; 
@@ -73,60 +38,103 @@
       padding: 10px 20px;
       border-radius: 10px;
     }
-    
-    .trophy {
-      font-size: 80px;
-      margin-bottom: 20px;
-    }
-    
-    .confetti {
-      position: absolute;
-      width: 100%;
-      height: 100%;
+
+    /* Game Over & Win Overlays - matching game 1 style */
+    .game-overlay {
+      position: fixed;
       top: 0;
       left: 0;
-      pointer-events: none;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background: rgba(235, 241, 229, 0.98);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
-    
-    .confetti-piece {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      top: -10px;
-      animation: confetti-fall 3s linear infinite;
+
+    .result-box {
+      background: #ffffff;
+      border: 4px solid #000;
+      padding: 40px 60px;
+      text-align: center;
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
     }
-    
-    @keyframes confetti-fall {
-      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+
+    .result-box h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
     }
+
+    .result-box h1.win { color: #22c55e; }
+    .result-box h1.lose { color: #dc2626; }
+
+    .result-box p {
+      font-size: 0.75rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .final-score {
+      font-size: 1.2rem;
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #a8d5c8;
+      border: 3px solid #000;
+    }
+
+    .game-btn {
+      background: #6d968a;
+      color: #fff;
+      border: 3px solid #000;
+      padding: 14px 28px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin: 0 10px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+
+    .game-btn:hover {
+      background: #5a7d73;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
+    }
+
+    .game-btn.primary { background: #4a90e2; }
+    .game-btn.primary:hover { background: #357abd; }
+
+    .trophy { font-size: 80px; margin-bottom: 20px; }
   </style>
 </head>
 <body>
   <div id="score" class="hidden">Score: <span id="scoreValue">0</span> / 2000</div>
   <canvas id="gameCanvas" width="800" height="800"></canvas>
   
-  <div id="startScreen">
-    <h1>🌻 XP Buddy Jump!</h1>
-    <p>Use ← → or A D to move</p>
-    <p>Reach 5000 points to win!</p>
-    <button id="playBtn">PLAY</button>
+  <!-- Game Over Overlay -->
+  <div id="gameOverScreen" class="game-overlay hidden">
+    <div class="result-box">
+      <h1 class="lose">💀 GAME OVER</h1>
+      <p>Better luck next time!</p>
+      <div class="final-score">SCORE: <span id="finalScore">0</span></div>
+      <button class="game-btn primary" id="restartBtn">PLAY AGAIN</button>
+      <button class="game-btn" id="closeBtn">CLOSE</button>
+    </div>
   </div>
   
-  <div id="gameOverScreen" class="hidden">
-    <h1>Game Over!</h1>
-    <p>Score: <span id="finalScore">0</span></p>
-    <button id="restartBtn">PLAY AGAIN</button>
-  </div>
-  
-  <div id="winScreen" class="hidden">
-    <div class="confetti" id="confettiContainer"></div>
-    <div class="trophy">🏆</div>
-    <h1 class="gold">YOU WIN!</h1>
-    <p>Congratulations! You reached 2000 points!</p>
-    <p>Final Score: <span id="winScore">2000</span></p>
-    <button id="continueBtn" class="gold">CONTINUE</button>
+  <!-- Win Screen -->
+  <div id="winScreen" class="game-overlay hidden">
+    <div class="result-box">
+      <div class="trophy">🏆</div>
+      <h1 class="win">✨ VICTORY! ✨</h1>
+      <p>You completed the game!</p>
+      <div class="final-score">SCORE: <span id="winScore">2000</span></div>
+      <button class="game-btn primary" id="continueBtn">CLOSE</button>
+    </div>
   </div>
 
   <script src="game_2.js"></script>

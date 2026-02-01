@@ -1,19 +1,17 @@
 // Get elements
 var canvas = document.getElementById('gameCanvas');
 var ctx = canvas.getContext('2d');
-var startScreen = document.getElementById('startScreen');
 var winScreen = document.getElementById('winScreen');
 var scoreDiv = document.getElementById('score');
 var scoreValue = document.getElementById('scoreValue');
 var winScore = document.getElementById('winScore');
-var playBtn = document.getElementById('playBtn');
-var continueBtn = document.getElementById('continueBtn');
-var confettiContainer = document.getElementById('confettiContainer');
+var finalScoreEl = document.getElementById('finalScore');
+var gameOverScreen = document.getElementById('gameOverScreen');
 
 // Game variables
 var gameRunning = false;
 var score = 0;
-var WIN_SCORE = 2000;
+var WIN_SCORE = 20;
 var player = { 
   x: 165, 
   y: 450, 
@@ -21,7 +19,7 @@ var player = {
   width: 50, 
   height: 50, 
   facingRight: true,
-  state: 'jumping',  // 'jumping' or 'landing'
+  state: 'jumping',
   landingTimer: 0
 };
 var platforms = [];
@@ -42,7 +40,7 @@ var BIRD_WIDTH = 120;
 var BIRD_HEIGHT = 96;
 
 // Player animation settings
-var LANDING_DURATION = 20;  // How many frames to show landing image
+var LANDING_DURATION = 20;
 
 // Images
 var jumpImg = new Image();
@@ -130,11 +128,6 @@ skyImg.onerror = function() {
 mountainImg.onload = function() {
   mountainLoaded = true;
   console.log('Mountain 1 loaded!', mountainImg.width, 'x', mountainImg.height);
-
-  // Lock the starting Y position ONCE
-  var mountainWidth = canvas.width;
-  var mountainHeight = (mountainImg.height / mountainImg.width) * mountainWidth;
-  mountainBaseY = canvas.height - mountainHeight;
 };
 mountainImg.onerror = function() {
   console.log('Mountain 1 failed to load');
@@ -166,50 +159,18 @@ skyImg.src = basePath + 'GAME_2_SKY.png';
 mountainImg.src = basePath + 'GAME_2_mountain_1.png';
 mountain2Img.src = basePath + 'GAME_2_mountain_2.png';
 
-playBtn.onclick = function() {
-  startGame();
-};
-
-continueBtn.onclick = function() {
-  closeTab();
-};
-
-function closeTab() {
-  try {
-    window.close();
-  } catch (e) {}
-  
-  setTimeout(function() {
-    document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#1a1a2e;color:white;font-family:Arial;text-align:center;"><div><h1>Game Complete!</h1><p>You can close this tab now.</p></div></div>';
-  }, 100);
-}
-
-function createConfetti() {
-  confettiContainer.innerHTML = '';
-  var colors = ['#ffd700', '#ff6b6b', '#4caf50', '#2196f3', '#ff9800', '#e91e63'];
-  
-  for (var i = 0; i < 50; i++) {
-    var piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + '%';
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDelay = Math.random() * 3 + 's';
-    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
-    confettiContainer.appendChild(piece);
-  }
-}
-
 function showWinScreen() {
   gameRunning = false;
   winScore.textContent = score;
   scoreDiv.classList.add('hidden');
   winScreen.classList.remove('hidden');
-  createConfetti();
 }
 
 function handleDeath() {
   gameRunning = false;
-  closeTab();
+  finalScoreEl.textContent = score;
+  scoreDiv.classList.add('hidden');
+  gameOverScreen.classList.remove('hidden');
 }
 
 // Keyboard
@@ -223,17 +184,6 @@ window.onkeydown = function(e) {
   if (key === 'ArrowRight' || key === 'd' || key === 'D') {
     rightPressed = true;
     e.preventDefault();
-  }
-  if (key === ' ') {
-    e.preventDefault();
-    if (!startScreen.classList.contains('hidden')) {
-      startGame();
-    }
-  }
-  if (key === 'Enter') {
-    if (!winScreen.classList.contains('hidden')) {
-      closeTab();
-    }
   }
 };
 
@@ -250,8 +200,6 @@ window.onkeyup = function(e) {
 
 function startGame() {
   console.log('Starting game!');
-  console.log('Jump image loaded:', jumpImgLoaded);
-  console.log('Land image loaded:', landImgLoaded);
   
   gameRunning = true;
   score = 0;
@@ -299,11 +247,9 @@ function startGame() {
     y -= 100 + Math.random() * 40;
   }
   
-  startScreen.classList.add('hidden');
+  gameOverScreen.classList.add('hidden');
   winScreen.classList.add('hidden');
   scoreDiv.classList.remove('hidden');
-  
-  canvas.focus();
   
   gameLoop();
 }
@@ -323,14 +269,12 @@ function update() {
     return;
   }
   
-  // Update bird animation timer
   birdAnimTimer++;
   if (birdAnimTimer >= 25) {
     birdAnimTimer = 0;
     birdAnimFrame = (birdAnimFrame + 1) % 2;
   }
   
-  // Update landing timer
   if (player.state === 'landing') {
     player.landingTimer--;
     if (player.landingTimer <= 0) {
@@ -338,7 +282,6 @@ function update() {
     }
   }
   
-  // Movement
   if (leftPressed) {
     player.x -= 7;
     player.facingRight = false;
@@ -348,7 +291,6 @@ function update() {
     player.facingRight = true;
   }
   
-  // Wrap around
   if (player.x < -player.width) player.x = canvas.width;
   if (player.x > canvas.width) player.x = -player.width;
   
@@ -357,7 +299,6 @@ function update() {
   player.vy += 0.5;
   player.y += player.vy;
   
-  // Move bird platforms
   for (var i = 0; i < platforms.length; i++) {
     var p = platforms[i];
     if (p.type === 'moving') {
@@ -368,7 +309,6 @@ function update() {
     }
   }
   
-  // Collision detection - only when falling
   if (player.vy > 0) {
     var playerBottom = player.y + player.height;
     var prevPlayerBottom = prevY + player.height;
@@ -383,7 +323,6 @@ function update() {
           player.y = platformTop - player.height;
           player.vy = -15;
           
-          // Trigger landing state
           player.state = 'landing';
           player.landingTimer = LANDING_DURATION;
           
@@ -393,27 +332,22 @@ function update() {
     }
   }
   
-  // Scroll world when player goes above threshold
   if (player.y < 300) {
     var diff = 300 - player.y;
     player.y = 300;
     score += Math.floor(diff);
     totalScrolled += diff;
     
-    // Mountain scrolling logic
     if (totalScrolled > MOUNTAIN_STAY_DISTANCE) {
       mountainOffset += diff;
     }
     
-    // Move platforms down
     for (var i = 0; i < platforms.length; i++) {
       platforms[i].y += diff;
     }
     
-    // Remove off-screen platforms
     platforms = platforms.filter(function(p) { return p.y < 700; });
     
-    // Add new platforms
     while (platforms.length < 22) {
       var highestY = 0;
       for (var i = 0; i < platforms.length; i++) {
@@ -451,13 +385,10 @@ function update() {
 
 function draw() {
   if (skyLoaded) {
-      var bgHeight = canvas.height;
-      var bgWidth = canvas.width;
-
-      // anchor to bottom
-      var bgY = canvas.height - bgHeight;
-
-      ctx.drawImage(skyImg, 0, bgY, bgWidth, bgHeight);
+    var bgHeight = canvas.height;
+    var bgWidth = canvas.width;
+    var bgY = canvas.height - bgHeight;
+    ctx.drawImage(skyImg, 0, bgY, bgWidth, bgHeight);
   } else {
     var gradient = ctx.createLinearGradient(0, 0, 0, 600);
     gradient.addColorStop(0, '#4a90d9');
@@ -466,10 +397,8 @@ function draw() {
     ctx.fillRect(0, 0, 400, 600);
   }
   
-  // Draw mountains
   drawMountains();
   
-  // Progress bar
   var progress = Math.min(score / WIN_SCORE, 1);
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.fillRect(50, 10, 300, 10);
@@ -479,42 +408,30 @@ function draw() {
   ctx.lineWidth = 1;
   ctx.strokeRect(50, 10, 300, 10);
   
-  // Platforms
   for (var i = 0; i < platforms.length; i++) {
     drawPlatform(platforms[i]);
   }
   
-  // Player
   drawPlayer();
 }
 
 function drawMountains() {
   var mountainWidth = canvas.width;
 
-    if (mountain2Loaded) {
-      var mountain2Height = (mountain2Img.height / mountain2Img.width) * mountainWidth;
-      var mountain2Y = canvas.height - mountain2Height;
-      ctx.drawImage(mountain2Img, 0, mountain2Y, mountainWidth, mountain2Height);
+  if (mountain2Loaded) {
+    var mountain2Height = (mountain2Img.height / mountain2Img.width) * mountainWidth;
+    var mountain2Y = canvas.height - mountain2Height;
+    ctx.drawImage(mountain2Img, 0, mountain2Y, mountainWidth, mountain2Height);
   }
 
   if (!mountainLoaded) return;
 
   var mountainHeight = (mountainImg.height / mountainImg.width) * mountainWidth;
-
-  // Start with the mountain bottom perfectly touching the bottom of the canvas
   var baseY = canvas.height - mountainHeight;
-
-  // How far we are allowed to scroll UP before the top hits the top of the canvas
-  // When drawY == 0, the top of the mountain is exactly at the top of the screen
   var maxScrollUp = Math.max(0, -baseY);
-
-  // Scroll upward based on totalScrolled, but stop once we hit the top
   var scrollUp = Math.min(totalScrolled, maxScrollUp);
-
-  // Move mountain up (drawY becomes less negative over time)
   var drawY = baseY + scrollUp;
 
-  // Draw mountain 1
   ctx.drawImage(mountainImg, 0, drawY, mountainWidth, mountainHeight);
 
   if (scrollUp >= maxScrollUp && mountain2Loaded) {
@@ -566,7 +483,6 @@ function drawPlayer() {
   var offsetX = (player.width - drawWidth) / 2;
   var offsetY = (player.height - drawHeight) / 2;
   
-  // Choose which image to use based on state
   var img = null;
   var imgLoaded = false;
   
@@ -580,7 +496,6 @@ function drawPlayer() {
   
   if (imgLoaded && img) {
     if (!player.facingRight) {
-      // Flip horizontally
       ctx.translate(player.x + offsetX + drawWidth, player.y + offsetY);
       ctx.scale(-1, 1);
       ctx.drawImage(img, 0, 0, drawWidth, drawHeight);
@@ -588,7 +503,6 @@ function drawPlayer() {
       ctx.drawImage(img, player.x + offsetX, player.y + offsetY, drawWidth, drawHeight);
     }
   } else {
-    // Fallback to simple circle
     var cx = player.x + player.width / 2;
     var cy = player.y + player.height / 2;
     
@@ -607,5 +521,23 @@ function drawPlayer() {
   ctx.restore();
 }
 
+// Button handlers
+document.getElementById('restartBtn').onclick = function() {
+  gameOverScreen.classList.add('hidden');
+  startGame();
+};
+
+document.getElementById('closeBtn').onclick = function() {
+  window.close();
+};
+
+document.getElementById('continueBtn').onclick = function() {
+  window.close();
+};
+
+// Auto-start
 draw();
-console.log('Game loaded!');
+console.log('Game loaded! Starting...');
+setTimeout(function() {
+  startGame();
+}, 500);

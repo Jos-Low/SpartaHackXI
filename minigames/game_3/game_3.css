@@ -117,7 +117,6 @@ select {
   padding: 10px 0 4px;
 }
 
-/* Board uses CSS vars set by JS: --rows, --cols, --cellSize */
 .board {
   display: grid;
   grid-template-rows: repeat(var(--rows), var(--cellSize));
@@ -127,7 +126,7 @@ select {
   border-radius: 18px;
   background: rgba(0,0,0,0.25);
   border: 1px solid rgba(255,255,255,0.10);
-  touch-action: none; /* so pointer events work on mobile */
+  touch-action: none;
   user-select: none;
 }
 
@@ -140,7 +139,6 @@ select {
 }
 .cell:hover { background: var(--cellHover); }
 
-/* Filled path cells */
 .cell.filled::before {
   content: "";
   position: absolute;
@@ -149,13 +147,12 @@ select {
   background: var(--fill);
 }
 
-/* Endpoint circles */
 .endpoint {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  pointer-events: none; /* we handle pointer on cell */
+  pointer-events: none;
 }
 .endpoint .dot {
   width: 56%;
@@ -166,7 +163,6 @@ select {
               0 10px 18px rgba(0,0,0,0.35);
 }
 
-/* Active drawing highlight */
 .cell.active {
   outline: 2px solid rgba(255,255,255,0.35);
 }
@@ -210,3 +206,90 @@ select {
   margin-left: auto;
 }
 
+/* Timer */
+.timer {
+  font-size: 16px;
+  color: var(--text);
+  font-weight: bold;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.timer.warning {
+  color: #ff4d4d;
+  animation: pulse 0.8s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Win/Lose Overlays */
+.game-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 15, 23, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.result-box {
+  background: var(--panel);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 40px 60px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+}
+
+.result-box h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.result-box h1.win { color: #4dff9a; }
+.result-box h1.lose { color: #ff4d4d; }
+
+.result-box p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.game-btn {
+  background: rgba(255,255,255,0.10);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 12px 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin: 0 8px;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+
+.game-btn:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+.game-btn.primary {
+  background: #4da3ff;
+  border-color: #4da3ff;
+}
+
+.game-btn.primary:hover {
+  background: #357abd;
+}
+
+.trophy { font-size: 60px; margin-bottom: 20px; }
+
+.hidden { display: none !important; }
