@@ -16,7 +16,11 @@ export const GAME_CONFIG = {
       level: 2,
       characterIcon: "assets/character/LVL_2_Animated_Flower.png",
       xpToNext: 100,
+<<<<<<< HEAD
       upgradeMinigame: "minigames/game_1/game_1.html"
+=======
+      upgradeMinigame: "minigames/game_2/game_2.html"
+>>>>>>> 12a135a (doodle jump game)
     },
     {
       level: 3,
