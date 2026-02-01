@@ -21,10 +21,11 @@
       "run_at": "document_idle"
     }
   ],
-  "web_accessible_resources": [
-    {
-      "resources": ["assets/character/Animated_Flower.png", "assets/character/LVL_2_Animated_Flower.png", "assets/character/LVL_3_Animated_Flower.png", "assets/character/LVL_4_Animated_Flower.png", "assets/character/LVL_5_Animated_Flower.png", "assets/character/LVL_6_Animated_Flower.png"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  "web_accessible_resources": [{
+    "resources": [
+      "assets/game_1/*",
+      "minigame/*"
+    ],
+    "matches": ["<all_urls>"]
+  }]
 }

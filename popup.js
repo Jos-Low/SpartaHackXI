@@ -63,6 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  document.getElementById('launch-game-btn').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('minigame/game.html') });
+  });
+
   const iconEl = document.getElementById("characterIcon");
   if (!iconEl) return;
 
