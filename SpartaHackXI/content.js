@@ -25,8 +25,12 @@
   // Track last icon to avoid unnecessary DOM updates
   let lastIconPath = null;
 
-  function setCharacterIconFromSW() {
-    chrome.runtime.sendMessage({ type: "GET_CHARACTER_ICON" }, (res) => {
+  // ✅ UPDATED: Now accepts an optional level to query specifically
+  function setCharacterIcon(level) {
+    // Note: If level is undefined, the SW will default to the current info via GET_CHARACTER_ICON
+    const message = level ? { type: "GET_CHARACTER_ICON_FOR_LEVEL", level: level } : { type: "GET_CHARACTER_ICON" };
+
+    chrome.runtime.sendMessage(message, (res) => {
       if (!res?.ok || !res.icon) return;
 
       // res.icon is like "assets/LVL_2_Animated_Flower.png"
@@ -34,6 +38,7 @@
       lastIconPath = res.icon;
 
       img.src = chrome.runtime.getURL(res.icon);
+      console.log('[XP Buddy] Updated character icon to:', res.icon);
     });
   }
 
@@ -44,8 +49,8 @@
 
     xpLabel.textContent = `Lvl ${level} • XP ${xp}/${xpToNext}`;
 
-    // ✅ Always pull icon from SW (single source of truth)
-    setCharacterIconFromSW();
+    // ✅ UPDATED: Pass the new level from the state update
+    setCharacterIcon(level);
   }
 
   // initial load
@@ -60,6 +65,7 @@
   // ✅ live updates (A.1): service worker broadcasts to tabs -> content script re-renders immediately
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === "STATE_UPDATED" && msg.state) {
+      console.log('[XP Buddy] State update received in content script:', msg.state);
       render(msg.state);
     }
   });

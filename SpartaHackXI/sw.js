@@ -366,3 +366,28 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   return true;
 });
+
+// ---------- Messages ----------
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  (async () => {
+    // ... existing handlers for GET_STATE, GET_SETTINGS, SET_SETTINGS ...
+
+    // ✅ OLD Handler (keep for backward compatibility if needed)
+    if (msg.type === "GET_CHARACTER_ICON") {
+      const state = await getState();
+      const icon = getCharacterIconForLevel(state.level || 1);
+      return sendResponse({ ok: true, icon });
+    }
+
+    // ✅ NEW Handler: Get icon for a specific level
+    if (msg.type === "GET_CHARACTER_ICON_FOR_LEVEL") {
+      const level = msg.level || 1; // Default to 1 if not provided
+      const icon = getCharacterIconForLevel(level);
+      return sendResponse({ ok: true, icon });
+    }
+
+    // ... rest of handlers (START_UPGRADE, RESET_STATE, etc.)
+  })();
+
+  return true;
+});

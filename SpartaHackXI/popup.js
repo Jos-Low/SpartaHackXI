@@ -42,20 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Reuse for maps button??
   
-  const openMap = document.getElementById("openMapBtn");
-  if (openMap) {
-    openMap.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("map.html"),
-      });
-
-      window.close();
-    });
-  }
-
-
   // const openMinigame3El = document.getElementById("openMinigame3");
   // if (openMinigame3El) {
   //   openMinigame3El.addEventListener("click", (e) => {
