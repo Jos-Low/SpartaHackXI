@@ -37,7 +37,8 @@ const CONFIG = {
   playerSwingMs: 420,
   playerHurtMs: 420,
 
-  scoreSlothHit: 10,
+  slothDamage: 10,
+  slothMaxHealth: 100,
 };
 
 /* --------------- ASSETS (YOUR FILENAMES) --------------- */
@@ -76,7 +77,7 @@ const Critter = Object.freeze({
 
 const Game = {
   running: false,
-  score: 0,
+  score: CONFIG.slothMaxHealth, // sloth health
   hearts: CONFIG.heartsMax,
 
   nextSpawnAt: 0,
@@ -95,6 +96,9 @@ const els = {
   restartBtn: document.getElementById("restartBtn"),
   overlay: document.getElementById("overlay"),
   playerSprite: document.getElementById("playerSprite"),
+  hpBar: document.getElementById("hpBar"),
+  hpFill: document.getElementById("hpFill"),
+  hpText: document.getElementById("hpText"),
 };
 
 /* ------------------ HELPERS ------------------ */
@@ -155,7 +159,19 @@ function renderHearts() {
 }
 
 function renderScore() {
-  els.score.textContent = String(Game.score);
+  // Game.score is now sloth health
+  const hp = clamp(Game.score, 0, CONFIG.slothMaxHealth);
+  const max = CONFIG.slothMaxHealth;
+
+  const pct = max > 0 ? (hp / max) * 100 : 0;
+
+  if (els.hpFill) els.hpFill.style.width = `${pct}%`;
+  if (els.hpText) els.hpText.textContent = `${hp} / ${max}`;
+
+  if (els.hpBar) {
+    els.hpBar.setAttribute("aria-valuenow", String(hp));
+    els.hpBar.setAttribute("aria-valuemax", String(max));
+  }
 }
 
 function showOverlay(on) {
@@ -294,7 +310,7 @@ function endGame() {
 function restart() {
   const now = performance.now();
   Game.running = true;
-  Game.score = 0;
+  Game.score = CONFIG.slothMaxHealth;
   Game.hearts = CONFIG.heartsMax;
 
   renderScore();
@@ -329,10 +345,19 @@ function onCanClick(idx) {
 
   if (can.critter === Critter.SLOTH) {
     beginHit(can, now);
-    Game.score += CONFIG.scoreSlothHit;
+
+    Game.score = clamp(
+        Game.score - CONFIG.slothDamage,
+        0,
+        CONFIG.slothMaxHealth
+    );
     renderScore();
+    if (Game.score <= 0) {
+        endGame(); // sloth defeated
+    }
     return;
   }
+
 }
 
 /* ------------------ LOOP ------------------ */
