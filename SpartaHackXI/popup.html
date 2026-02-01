@@ -175,10 +175,6 @@
       .hidden-tools {
         display: none;
       }
-
-      .book-btn{
-        border: 0px;
-      }
     </style>
   </head>
 
@@ -190,7 +186,6 @@
         <!-- LEFT -->
         <div class="left">
           <!-- Map icon -->
-          <button id="openBookBtn" class="book-btn" type="button" aria-label="Open Map">
           <div class="map-icon" aria-hidden="true">
             <svg viewBox="0 0 120 120" fill="none">
               <path
@@ -203,7 +198,6 @@
               <path d="M75 25 V105" stroke="#111" stroke-width="3" />
             </svg>
           </div>
-          </button>
 
           <div class="btn-col">
             <!-- IMPORTANT: this must be openOptions so your JS works -->
@@ -253,6 +247,10 @@
 
     <!-- Your existing popup.js -->
     <script src="popup.js"></script>
+    <button id="launch-game-btn" style="margin: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+    🎮 Play Flower Jump
+    </button>
+    <div><button id="openMinigame5" class="settings-btn">Whack-a-Critter</button></div>
 
   </body>
 </html>

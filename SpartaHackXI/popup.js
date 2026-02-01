@@ -69,18 +69,31 @@ document.addEventListener("DOMContentLoaded", () => {
   //   });
   // }
 
-  const openBook = document.getElementById("openBookBtn");
-  if (openBook) {
-    openBook.addEventListener("click", (e) => {
-      e.preventDefault();
+  // const openMinigame2El = document.getElementById("openMinigame2");
+  // if (openMinigame2El) {
+  //   openMinigame2El.addEventListener("click", (e) => {
+  //     e.preventDefault();
 
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("books/comic1.html"),
+  //     chrome.tabs.create({
+  //       url: chrome.runtime.getURL("minigames/game_2/game_2.html"),
+  //     });
+
+  //     window.close();
+  //   });
+  // }
+
+  const openMinigame5El = document.getElementById("openMinigame5");
+    if (openMinigame5El) {
+      openMinigame5El.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        chrome.tabs.create({
+          url: chrome.runtime.getURL("minigames/game_5/game_5.html"),
+        });
+
+        window.close();
       });
-
-      window.close();
-    });
-  }
+    }
 
 
 
@@ -109,6 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
+  document.getElementById('launch-game-btn').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('minigames/game_1/game_1.html') });
+  });
 
   const iconEl = document.getElementById("characterIcon");
   if (!iconEl) return;
