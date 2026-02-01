@@ -152,9 +152,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("reset")?.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "RESET_STATE" }, (res) => {
-    console.log("reset:", res);
+      if (!res?.ok) {
+        console.warn("RESET_STATE failed:", res?.err);
+        load();
+        return;
+      }
+
+      // If your sw.js returns the updated state, render it
+      if (res.state) render(res.state);
+
+      // Also update character icon (level 1)
+      const iconEl = document.getElementById("characterIcon");
+      if (iconEl && res.icon) {
+        iconEl.src = chrome.runtime.getURL(res.icon);
+      }
     });
   });
-
   load(); // call after DOM is ready
 });

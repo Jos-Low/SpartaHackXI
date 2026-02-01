@@ -179,7 +179,34 @@ async function ensureStateIsConsistent() {
   }
 }
 
-// ---------- Time accounting ----------
+// ---------- Reset helpers ----------
+async function resetStateToDefault() {
+  // Ensure we always reset to the true level 1 definition from gameConfig
+  const level = 1;
+  const def = getLevelDef(level);
+
+  const fresh = {
+    ...DEFAULT_STATE,
+    level,
+    xp: 0,
+    xpToNext: computeXpToNext(level), // should become 10 from your config
+    pendingUpgrade: false,
+    current: null
+  };
+
+  stateCache = null;
+  await saveState(fresh);
+
+  // Optional: also reset session to whatever tab is active right now
+  // (This helps XP start accruing immediately after reset)
+  await refreshSession("reset");
+
+  return {
+    ...fresh,
+    characterIcon: def?.characterIcon ?? "assets/character/Animated_Flower.png"
+  };
+}
+
 // ---------- Time accounting ----------
 
 // ✅ Track XP increments separately
@@ -237,7 +264,7 @@ function startXpIncrementLoop() {
 
     let xpDelta = 0;
     if (curr.category === 'good') {
-      xpDelta = minutesFraction * (settings.xpPerMinuteGood || 15);
+      xpDelta = minutesFraction * (settings.xpPerMinuteGood || 15) * 1000000;
       console.log('[XP Loop] ✅ Good site detected!');
     } else if (curr.category === 'bad') {
       xpDelta = -minutesFraction * (settings.xpPerMinuteBad || 10);
@@ -448,9 +475,12 @@ if (msg.type === "SET_SETTINGS") {
 
     if (msg.type === "RESET_STATE") {
       const fresh = await resetStateToDefault();
-      return sendResponse({ ok: true, state: fresh });
+      return sendResponse({
+        ok: true,
+        state: fresh,
+        icon: fresh.characterIcon // popup can use this if you want
+      });
     }
-
 
     return sendResponse({ ok: false, err: "Unknown message" });
   })();
