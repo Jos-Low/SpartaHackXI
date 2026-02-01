@@ -16,7 +16,7 @@ export const GAME_CONFIG = {
       level: 2,
       characterIcon: "assets/character/LVL_2_Animated_Flower.png",
       xpToNext: 100,
-      // upgradeMinigame: "minigames/game_1/game_1.html"
+      upgradeMinigame: "minigames/game_1/game_1.html"
     },
     {
       level: 3,

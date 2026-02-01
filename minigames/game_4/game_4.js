@@ -50,6 +50,9 @@ const BACK_IMAGE_PATH = "../../assets/game_4/GAME_4_CARD_BACK.png";
 const HEART_FULL_PATH  = "../../assets/game_4/Full_Heart.png";
 const HEART_EMPTY_PATH = "../../assets/game_4/Broken_Heart.png";
 
+const BG_IMAGE_PATH = "../../assets/game_4/GAME_4_BG.png";
+let bgImg = null; // HTMLImageElement for background
+
 // If you don't have images yet, we auto-generate colored placeholders.
 // Keep this true during development; set false once you add real images.
 const ALLOW_PLACEHOLDER_FACES = false;
@@ -519,18 +522,69 @@ function loop(now) {
 }
 
 function drawBackground() {
-  // subtle vignette
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const grd = ctx.createRadialGradient(
-    canvas.width * 0.35, canvas.height * 0.25, 80,
-    canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.9
+  // 1) Draw background image (cover the whole canvas)
+  if (bgImg) {
+    const rect = fitRectKeepAspect(
+      bgImg.width ?? bgImg.naturalWidth ?? canvas.width,
+      bgImg.height ?? bgImg.naturalHeight ?? canvas.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    // "cover" effect (crop to fill): use aspect-fit helper but expand to cover
+    // We'll do cover manually:
+    const srcW = bgImg.width ?? bgImg.naturalWidth ?? canvas.width;
+    const srcH = bgImg.height ?? bgImg.naturalHeight ?? canvas.height;
+    const srcAspect = srcW / srcH;
+    const dstAspect = canvas.width / canvas.height;
+
+    let drawW, drawH, drawX, drawY;
+    if (srcAspect > dstAspect) {
+      // image is wider -> match height, crop width
+      drawH = canvas.height;
+      drawW = drawH * srcAspect;
+      drawX = (canvas.width - drawW) / 2;
+      drawY = 0;
+    } else {
+      // image is taller -> match width, crop height
+      drawW = canvas.width;
+      drawH = drawW / srcAspect;
+      drawX = 0;
+      drawY = (canvas.height - drawH) / 2;
+    }
+
+    ctx.drawImage(bgImg, drawX, drawY, drawW, drawH);
+
+    // optional: darken slightly for readability
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    // Fallback: your existing subtle vignette
+    const grd = ctx.createRadialGradient(
+      canvas.width * 0.35, canvas.height * 0.25, 80,
+      canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.9
+    );
+    grd.addColorStop(0, "rgba(255,255,255,0.06)");
+    grd.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 2) Optional: re-add a light vignette on top (nice with images)
+  const vignette = ctx.createRadialGradient(
+    canvas.width * 0.5, canvas.height * 0.45, 120,
+    canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.85
   );
-  grd.addColorStop(0, "rgba(255,255,255,0.06)");
-  grd.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = grd;
+  vignette.addColorStop(0, "rgba(0,0,0,0)");
+  vignette.addColorStop(1, "rgba(0,0,0,0.28)");
+  ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
+
 
 function draw() {
   drawBackground();
@@ -564,6 +618,13 @@ async function init() {
   } catch (e) {
     console.error(e);
     backImg = null; // fallback to pattern if missing
+  }
+
+  try {
+  [bgImg] = await loadImages([BG_IMAGE_PATH]);
+  } catch (e) {
+    console.error(e);
+    bgImg = null; // fallback to gradient if missing
   }
 
   if (loaded.length === totalPairs) {

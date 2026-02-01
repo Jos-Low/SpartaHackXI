@@ -25,21 +25,15 @@
     {
       "resources": [
         "assets/game_1/*",
-        "minigame/*",
+        "minigames/*",
+        "assets/game_4/*",
 
         "assets/character/Animated_Flower.png",
         "assets/character/LVL_2_Animated_Flower.png",
         "assets/character/LVL_3_Animated_Flower.png",
         "assets/character/LVL_4_Animated_Flower.png",
         "assets/character/LVL_5_Animated_Flower.png",
-        "assets/character/LVL_6_Animated_Flower.png",
-
-        "assets/game_4/GAME_4_baby_sloth.png",
-        "assets/game_4/GAME_4_chad_sloth.png",
-        "assets/game_4/GAME_4_clown_sloth.png",
-        "assets/game_4/GAME_4_evil_sloth.png",
-        "assets/game_4/GAME_4_flower_sloth.png",
-        "assets/game_4/GAME_4_sleep_sloth.png"
+        "assets/character/LVL_6_Animated_Flower.png"
       ],
       "matches": ["<all_urls>"]
     }
