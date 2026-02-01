@@ -17,13 +17,13 @@ export const GAME_CONFIG = {
 
       // when upgrading FROM level 2 TO 3, use this minigame
       // (your actual file is game2.html, NOT game_2.html)
-      upgradeMinigame: "minigames/game_2/game2.html"
+      upgradeMinigame: "minigames/game_2/game_2.html"
     },
     {
       level: 3,
       characterIcon: "assets/character/LVL_3_Animated_Flower.png",
       xpToNext: 200,
-      upgradeMinigame: "minigames/game_3/game3.html"
+      upgradeMinigame: "minigames/game_3/game_3.html"
     },
     {
       level: 4,

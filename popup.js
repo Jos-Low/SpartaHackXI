@@ -39,46 +39,48 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.runtime.openOptionsPage();
     });
   }
+  
+  // Reuse for maps button??
+  
+  // const openMinigameEl = document.getElementById("openMinigame");
+  // if (openMinigameEl) {
+  //   openMinigameEl.addEventListener("click", (e) => {
+  //     e.preventDefault();
 
-  const openMinigameEl = document.getElementById("openMinigame");
-  if (openMinigameEl) {
-    openMinigameEl.addEventListener("click", (e) => {
-      e.preventDefault();
+  //     chrome.tabs.create({
+  //       url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
+  //     });
 
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("minigames/game_4/game_4.html"),
-      });
-
-      window.close();
-    });
-  }
+  //     window.close();
+  //   });
+  // }
 
 
-  const openMinigame3El = document.getElementById("openMinigame3");
-  if (openMinigame3El) {
-    openMinigame3El.addEventListener("click", (e) => {
-      e.preventDefault();
+  // const openMinigame3El = document.getElementById("openMinigame3");
+  // if (openMinigame3El) {
+  //   openMinigame3El.addEventListener("click", (e) => {
+  //     e.preventDefault();
 
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("minigames/game_3/game_3.html"),
-      });
+  //     chrome.tabs.create({
+  //       url: chrome.runtime.getURL("minigames/game_3/game_3.html"),
+  //     });
 
-      window.close();
-    });
-  }
+  //     window.close();
+  //   });
+  // }
 
-  const openMinigame2El = document.getElementById("openMinigame2");
-  if (openMinigame2El) {
-    openMinigame2El.addEventListener("click", (e) => {
-      e.preventDefault();
+  // const openMinigame2El = document.getElementById("openMinigame2");
+  // if (openMinigame2El) {
+  //   openMinigame2El.addEventListener("click", (e) => {
+  //     e.preventDefault();
 
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("minigames/game_2/game_2.html"),
-      });
+  //     chrome.tabs.create({
+  //       url: chrome.runtime.getURL("minigames/game_2/game_2.html"),
+  //     });
 
-      window.close();
-    });
-  }
+  //     window.close();
+  //   });
+  // }
 
 
   // ✅ Upgrade button click handler

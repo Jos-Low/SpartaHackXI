@@ -2,65 +2,248 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; width: 280px; margin: 0; padding: 14px; background: #f5f7fa; }
-      .title { font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-      .character-icon { width: 40px; height: 40px; object-fit: contain; }
-      .bar { height: 12px; background: #eee; border-radius: 999px; overflow: hidden; }
-      .fill { height: 100%; width: 0%; background: #4caf50; }
-      .row { display:flex; justify-content: space-between; margin-top: 10px; font-size: 13px; }
-      .settings-btn {
-        display: block;
-        margin-top: 14px;
-        text-align: center;
-        font-size: 13px;
-        background: linear-gradient(135deg, #ff0040 0%, #5b0815 100%);
-        color: white;
-        text-decoration: none;
-        padding: 10px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        background: #ffffff;
+      }
+
+      /* Outer popup frame */
+      .window {
+        width: 560px;
+        height: 330px;
+        border: 2px solid #111;
+        box-sizing: border-box;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      /* Top bar */
+      .topbar {
+        height: 50px;
+        background: #d7f2f6;
+        border-bottom: 2px solid #111;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        box-sizing: border-box;
+      }
+
+      /* Fake close X (optional) */
+      .close-x {
+        width: 26px;
+        height: 26px;
         border: none;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(255, 0, 64, 0.3);
+        background: transparent;
+        cursor: pointer;
+        position: relative;
       }
-      .settings-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(255, 0, 64, 0.4);
+      .close-x::before,
+      .close-x::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 22px;
+        height: 2px;
+        background: #111;
+        transform-origin: center;
       }
-      .settings-btn:active {
-        transform: translateY(0);
+      .close-x::before {
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .close-x::after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+
+      /* Main content layout */
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        padding: 18px 22px;
+        gap: 12px;
+        box-sizing: border-box;
+        height: calc(100% - 50px);
+      }
+
+      /* Left side */
+      .left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+        padding-top: 8px;
+      }
+
+      .map-icon {
+        width: 110px;
+        height: 110px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .map-icon svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .btn-col {
+        width: 240px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .btn {
+        height: 44px;
+        font-size: 16px;
+        font-weight: 600;
+        border: 2px solid #111;
+        cursor: pointer;
+        box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+        transition: transform 0.08s ease;
+      }
+      .btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+      }
+
+      .btn.primary {
+        background: #d7f2f6;
+      }
+      .btn.gray {
+        background: #d9d9d9;
+      }
+
+      /* Right side */
+      .right {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        padding-top: 6px;
+      }
+
+      #levelText {
+        font-weight: 900;
+        letter-spacing: 1px;
+        font-size: 22px;
+        margin: 4px 0 0 0;
+      }
+
+      #characterIcon {
+        width: 140px;
+        height: 140px;
+        object-fit: contain;
+      }
+
+      .xp-wrap {
+        width: 270px;
+        margin-top: 6px;
+      }
+
+      .xp-bar {
+        height: 18px;
+        border: 2px solid #111;
+        background: #d9d9d9;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      #xpFill {
+        height: 100%;
+        width: 0%;
+        background: #4f55b8;
+        transition: width 0.25s ease;
+      }
+
+      #xpText {
+        text-align: center;
+        font-size: 16px;
+        margin-top: 8px;
+        font-weight: 700;
+      }
+
+      /* Hidden section for extra buttons your JS needs */
+      .hidden-tools {
+        display: none;
       }
     </style>
   </head>
+
   <body>
-    <div class="title">
-      <img src="assets/character/Animated_Flower.png" alt="XP Buddy" class="character-icon" id="characterIcon">
-      <span>XP Buddy</span>
+    <div class="window">
+      <div class="topbar">
+      </div>
+      <div class="content">
+        <!-- LEFT -->
+        <div class="left">
+          <!-- Map icon -->
+          <div class="map-icon" aria-hidden="true">
+            <svg viewBox="0 0 120 120" fill="none">
+              <path
+                d="M20 25 L45 15 L75 25 L100 15 V95 L75 105 L45 95 L20 105 Z"
+                stroke="#111"
+                stroke-width="3"
+                fill="white"
+              />
+              <path d="M45 15 V95" stroke="#111" stroke-width="3" />
+              <path d="M75 25 V105" stroke="#111" stroke-width="3" />
+            </svg>
+          </div>
+
+          <div class="btn-col">
+            <!-- IMPORTANT: this must be openOptions so your JS works -->
+            <button class="btn primary" id="openOptions">Edit Goals</button>
+
+            <!-- IMPORTANT: this must be upgrade so your JS works -->
+            <button class="btn gray" id="upgrade" disabled>Upgrade</button>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+          <!-- IMPORTANT: must be levelText -->
+          <div id="levelText">Level 1</div>
+
+          <!-- IMPORTANT: must be characterIcon -->
+          <img
+            id="characterIcon"
+            src="assets/character/Animated_Flower.png"
+            alt="XP Buddy"
+          />
+
+          <div class="xp-wrap">
+            <div class="xp-bar">
+              <!-- IMPORTANT: must be xpFill -->
+              <div id="xpFill"></div>
+            </div>
+
+            <!-- IMPORTANT: must be xpText -->
+            <div id="xpText">XP: 0/10</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- These are required because your popup.js references them.
+           We hide them so the UI stays like the mockup. -->
+      <div class="hidden-tools">
+        <button id="reset">Reset</button>
+
+        <button id="openMinigame">Game 4</button>
+        <button id="openMinigame2">Game 2</button>
+        <button id="openMinigame3">Game 3</button>
+
+        <button id="launch-game-btn">Game 1</button>
+      </div>
     </div>
 
-    <div id="levelText">Level 1</div>
-    <div class="bar"><div class="fill" id="xpFill"></div></div>
-
-    <div class="row">
-      <div id="xpText">XP: 0/10</div>
-      <div id="deltaHint"></div>
-    </div>
-    <div>
-    <button id="upgrade" disabled>Upgrade</button>
-    <button id="reset">Reset</button>
-    </div>
-
-    <button id="openOptions" class="settings-btn">⚙️ Edit Good/Bad Sites</button>
-    <div><button id="openMinigame" class="settings-btn">Test Memory Game</button></div>
-    <div><button id="openMinigame3" class="settings-btn">Test Flow Free Game</button></div>
-    <div><button id="openMinigame2" class="settings-btn">Test Jump Game</button></div>
-
+    <!-- Your existing popup.js -->
     <script src="popup.js"></script>
-    <button id="launch-game-btn" style="margin: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-    🎮 Play Flower Jump
-    </button>
-
   </body>
 </html>
