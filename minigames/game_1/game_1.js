@@ -56,7 +56,7 @@ Object.values(assets).forEach(img => {
 // GAME CONSTANTS
 // ============================================
 const GROUND_Y = H - 140; // Ground starts at y=400
-const MAX_SCORE = 50;    // ✅ Changed from 250 to 200
+const MAX_SCORE = 200;    // ✅ Changed from 250 to 200
 const GRAVITY = 0.7;
 const JUMP_POWER = -15;
 
