@@ -1,105 +1,120 @@
-// Default websites
+// options.js
+
 const DEFAULT_GOOD_SITES = [
-  'wikipedia.org',
-  'docs.google.com',
-  'github.com',
-  'stackoverflow.com',
-  'w3schools.com',
-  'khanacademy.org',
-  'leetcode.com',
+  "wikipedia.org",
+  "docs.google.com",
+  "github.com",
+  "stackoverflow.com",
+  "w3schools.com",
+  "khanacademy.org",
+  "leetcode.com",
 ];
 
 const DEFAULT_BAD_SITES = [
-  'x.com',
-  'reddit.com',
-  'instagram.com',
-  'facebook.com',
-  'tiktok.com',
-  'netflix.com',
-  'twitch.tv',
+  "x.com",
+  "reddit.com",
+  "instagram.com",
+  "facebook.com",
+  "tiktok.com",
+  "netflix.com",
+  "twitch.tv",
 ];
 
-// ✅ Add default XP rates
-const DEFAULT_XP_GOOD = 15;
-const DEFAULT_XP_BAD = 10;
-
-// Load settings on page load
-chrome.storage.sync.get(['goodSites', 'badSites', 'xpPerMinuteGood', 'xpPerMinuteBad'], (data) => {
-  // If no saved data, use defaults
-  const goodSites = data.goodSites && data.goodSites.length > 0 
-    ? data.goodSites 
-    : DEFAULT_GOOD_SITES;
-  
-  const badSites = data.badSites && data.badSites.length > 0 
-    ? data.badSites 
-    : DEFAULT_BAD_SITES;
-  
-  // ✅ Load XP rates
-  const xpGood = data.xpPerMinuteGood ?? DEFAULT_XP_GOOD;
-  const xpBad = data.xpPerMinuteBad ?? DEFAULT_XP_BAD;
-  
-  document.getElementById('goodSites').value = goodSites.join('\n');
-  document.getElementById('badSites').value = badSites.join('\n');
-  document.getElementById('xpGood').value = xpGood;
-  document.getElementById('xpBad').value = xpBad;
-  
-  // Save defaults if this is first time
-  if (!data.goodSites || data.goodSites.length === 0) {
-    chrome.storage.sync.set({
-      goodSites: DEFAULT_GOOD_SITES,
-      badSites: DEFAULT_BAD_SITES,
-      xpPerMinuteGood: DEFAULT_XP_GOOD,
-      xpPerMinuteBad: DEFAULT_XP_BAD
-    });
-  }
-});
-
-// Auto-save function with debounce
-let saveTimeout;
-function autoSave() {
-  clearTimeout(saveTimeout);
-  
-  // Show saving status
-  const status = document.getElementById('status');
-  status.textContent = '⏳ Saving...';
-  status.classList.add('show');
-  
-  saveTimeout = setTimeout(() => {
-    const goodSites = document.getElementById('goodSites').value
-      .split('\n')
-      .map(s => s.trim())
-      .filter(s => s);
-    
-    const badSites = document.getElementById('badSites').value
-      .split('\n')
-      .map(s => s.trim())
-      .filter(s => s);
-    
-    // ✅ Get XP rates from inputs
-    const xpGood = parseInt(document.getElementById('xpGood').value) || DEFAULT_XP_GOOD;
-    const xpBad = parseInt(document.getElementById('xpBad').value) || DEFAULT_XP_BAD;
-    
-    chrome.storage.sync.set({
-      goodSites: goodSites,
-      badSites: badSites,
-      xpPerMinuteGood: xpGood,
-      xpPerMinuteBad: xpBad
-    }, () => {
-      status.textContent = '✓ Changes saved automatically';
-      setTimeout(() => {
-        status.classList.remove('show');
-      }, 2000);
-    });
-  }, 1000); // Wait 1 second after user stops typing
+function linesToList(text) {
+  return (text || "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
-// Add auto-save listeners
-document.getElementById('goodSites').addEventListener('input', autoSave);
-document.getElementById('badSites').addEventListener('input', autoSave);
-document.getElementById('xpGood').addEventListener('input', autoSave); // ✅ New
-document.getElementById('xpBad').addEventListener('input', autoSave);  // ✅ New
+function listToLines(list) {
+  return (list || []).join("\n");
+}
 
-// Back button
-document.getElementById('backBtn').addEventListener('click', () => {
-  window.close();
+function showStatus(text) {
+  const status = document.getElementById("status");
+  if (!status) return;
+  status.textContent = text;
+  status.classList.add("show");
+}
+
+function hideStatusSoon(ms = 1500) {
+  const status = document.getElementById("status");
+  if (!status) return;
+  setTimeout(() => status.classList.remove("show"), ms);
+}
+
+let saveTimeout = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const goodEl = document.getElementById("goodSites");
+  const badEl = document.getElementById("badSites");
+  const backBtn = document.getElementById("backBtn");
+
+  if (!goodEl || !badEl) {
+    console.error("[Options] Missing textarea elements.");
+    return;
+  }
+
+  // Load settings from service worker (source of truth)
+  chrome.runtime.sendMessage({ type: "GET_SETTINGS" }, (res) => {
+    if (!res?.ok) {
+      console.error("[Options] GET_SETTINGS failed:", chrome.runtime.lastError);
+      return;
+    }
+
+    const s = res.settings || {};
+    const goodSites =
+      Array.isArray(s.goodSites) && s.goodSites.length ? s.goodSites : DEFAULT_GOOD_SITES;
+    const badSites =
+      Array.isArray(s.badSites) && s.badSites.length ? s.badSites : DEFAULT_BAD_SITES;
+
+    goodEl.value = listToLines(goodSites);
+    badEl.value = listToLines(badSites);
+
+    // If first run / empty, persist defaults so SW sees them too
+    if (!Array.isArray(s.goodSites) || !s.goodSites.length || !Array.isArray(s.badSites) || !s.badSites.length) {
+      chrome.runtime.sendMessage(
+        {
+          type: "SET_SETTINGS",
+          settingsPatch: { goodSites: DEFAULT_GOOD_SITES, badSites: DEFAULT_BAD_SITES },
+        },
+        () => {}
+      );
+    }
+  });
+
+  function autoSave() {
+    clearTimeout(saveTimeout);
+
+    showStatus("⏳ Saving...");
+
+    saveTimeout = setTimeout(() => {
+      const goodSites = linesToList(goodEl.value);
+      const badSites = linesToList(badEl.value);
+
+      chrome.runtime.sendMessage(
+        {
+          type: "SET_SETTINGS",
+          settingsPatch: { goodSites, badSites },
+        },
+        (res) => {
+          if (!res?.ok) {
+            console.error("[Options] SET_SETTINGS failed:", chrome.runtime.lastError, res);
+            showStatus("⚠️ Save failed (see console)");
+            hideStatusSoon(2500);
+            return;
+          }
+
+          showStatus("✓ Changes saved automatically");
+          hideStatusSoon(1500);
+        }
+      );
+    }, 600);
+  }
+
+  goodEl.addEventListener("input", autoSave);
+  badEl.addEventListener("input", autoSave);
+
+  if (backBtn) backBtn.addEventListener("click", () => window.close());
 });
