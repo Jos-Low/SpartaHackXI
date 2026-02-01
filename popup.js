@@ -143,13 +143,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          if (res.upgradeMinigame) {
-            chrome.tabs.create({
-              url: chrome.runtime.getURL(res.upgradeMinigame),
-            });
-            window.close();
-          }
+          // Open the generic intro flow for the level we upgraded FROM
+          const fromLevel = res.fromLevel ?? 1;
+
+          const introUrl = chrome.runtime.getURL(
+            `minigames/upgrade_intro/upgrade_intro.html?fromLevel=${encodeURIComponent(fromLevel)}`
+          );
+
+          chrome.tabs.create({ url: introUrl });
+          window.close();
         });
+
       });
     });
   }

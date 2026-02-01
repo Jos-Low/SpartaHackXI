@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minigame Intro</title>
+    <link rel="stylesheet" href="./upgrade_intro.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <video id="introVideo" class="video" playsinline></video>
+
+      <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+        <div class="card">
+          <h1 id="howTitle"></h1>
+          <ul id="howList"></ul>
+
+          <div class="actions">
+            <button id="okBtn" type="button">OK</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="skipBtn" class="skip" type="button">Skip</button>
+    </div>
+
+    <script type="module" src="./upgrade_intro.js"></script>
+  </body>
+</html>

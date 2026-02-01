@@ -9,7 +9,16 @@ export const GAME_CONFIG = {
       characterIcon: "assets/character/Animated_Flower.png",
       xpToNext: 10,
 
-      upgradeMinigame: "minigames/game_1/game_1.html"
+      upgradeMinigame: "minigames/game_1/game_1.html",
+      upgradeIntroVideo: "assets/videos/CutSceneOne.mp4",
+      upgradeHowTo: {
+        title: "How to play: Game 1",
+        bullets: [
+          "Do the thing.",
+          "Avoid the other thing.",
+          "Win by reaching the goal."
+        ]
+      }
     },
     {
       level: 2,
@@ -65,7 +74,9 @@ export function getLevelDef(level) {
       level,
       characterIcon: max.characterIcon,
       xpToNext: GAME_CONFIG.defaultXpToNext(level),
-      upgradeMinigame: max.upgradeMinigame
+      upgradeMinigame: max.upgradeMinigame,
+      upgradeIntroVideo: max.upgradeIntroVideo,
+      upgradeHowTo: max.upgradeHowTo
     };
   }
 

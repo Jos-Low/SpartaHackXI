@@ -345,10 +345,18 @@ async function startUpgrade() {
 
   if (xp < xpToNext) return { ok: false, err: "Not enough XP" };
 
-  const def = getLevelDef(level);
+  // This is the level we are upgrading FROM
+  const fromLevel = level;
+
+  // Pull minigame + intro info from the "fromLevel" config
+  const def = getLevelDef(fromLevel);
   const upgradeMinigame = def?.upgradeMinigame ?? null;
 
-  const newLevel = Math.min(level + 1, MAX_LEVEL);
+  // Optional (handy): return these too if you want
+  const upgradeIntroVideo = def?.upgradeIntroVideo ?? null;
+  const upgradeHowTo = def?.upgradeHowTo ?? null;
+
+  const newLevel = Math.min(fromLevel + 1, MAX_LEVEL);
 
   // if we just reached max, wipe XP + target
   if (newLevel >= MAX_LEVEL) {
@@ -358,7 +366,15 @@ async function startUpgrade() {
       xpToNext: 0,
       pendingUpgrade: false
     });
-    return { ok: true, level: newLevel, upgradeMinigame };
+
+    return {
+      ok: true,
+      level: newLevel,
+      fromLevel,
+      upgradeMinigame,
+      upgradeIntroVideo,
+      upgradeHowTo
+    };
   }
 
   const newXp = Math.max(0, xp - xpToNext);
@@ -371,7 +387,14 @@ async function startUpgrade() {
     pendingUpgrade: false
   });
 
-  return { ok: true, level: newLevel, upgradeMinigame };
+  return {
+    ok: true,
+    level: newLevel,
+    fromLevel,
+    upgradeMinigame,
+    upgradeIntroVideo,
+    upgradeHowTo
+  };
 }
 
 
