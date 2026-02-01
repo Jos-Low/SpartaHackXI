@@ -1,57 +1,85 @@
-function linesToList(text) {
-  return text
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
+// Default websites
+const DEFAULT_GOOD_SITES = [
+  'wikipedia.org',
+  'docs.google.com',
+  'github.com',
+  'stackoverflow.com',
+  'w3schools.com',
+  'khanacademy.org',
+  'leetcode.com',
+];
 
-function listToLines(list) {
-  return (list || []).join("\n");
-}
+const DEFAULT_BAD_SITES = [
+  'x.com',
+  'reddit.com',
+  'instagram.com',
+  'facebook.com',
+  'tiktok.com',
+  'netflix.com',
+  'twitch.tv',
+];
 
-async function load() {
-  chrome.runtime.sendMessage({ type: "GET_SETTINGS" }, (res) => {
-    if (!res?.ok) return;
+// Load settings on page load
+chrome.storage.sync.get(['goodSites', 'badSites'], (data) => {
+  // If no saved data, use defaults
+  const goodSites = data.goodSites && data.goodSites.length > 0 
+    ? data.goodSites 
+    : DEFAULT_GOOD_SITES;
+  
+  const badSites = data.badSites && data.badSites.length > 0 
+    ? data.badSites 
+    : DEFAULT_BAD_SITES;
+  
+  document.getElementById('goodSites').value = goodSites.join('\n');
+  document.getElementById('badSites').value = badSites.join('\n');
+  
+  // Save defaults if this is first time
+  if (!data.goodSites || data.goodSites.length === 0) {
+    chrome.storage.sync.set({
+      goodSites: DEFAULT_GOOD_SITES,
+      badSites: DEFAULT_BAD_SITES
+    });
+  }
+});
 
-    const s = res.settings;
-    document.getElementById("goodSites").value = listToLines(s.goodSites);
-    document.getElementById("badSites").value = listToLines(s.badSites);
+// Auto-save function with debounce
+let saveTimeout;
+function autoSave() {
+  clearTimeout(saveTimeout);
+  
+  // Show saving status
+  const status = document.getElementById('status');
+  status.textContent = '⏳ Saving...';
+  status.classList.add('show');
+  
+  saveTimeout = setTimeout(() => {
+    const goodSites = document.getElementById('goodSites').value
+      .split('\n')
+      .map(s => s.trim())
+      .filter(s => s);
     
-    // users select values of xp awarded
-    //document.getElementById("xpGood").value = s.xpPerMinuteGood ?? 10;
-    //document.getElementById("xpBad").value = s.xpPerMinuteBad ?? 15;
-  });
-}
-
-async function save() {
-  const status = document.getElementById("status");
-  status.textContent = "Saving...";
-
-  const patch = {
-    goodSites: linesToList(document.getElementById("goodSites").value),
-    badSites: linesToList(document.getElementById("badSites").value),
+    const badSites = document.getElementById('badSites').value
+      .split('\n')
+      .map(s => s.trim())
+      .filter(s => s);
     
-    // users select values of xp awarded
-    //xpPerMinuteGood: Number(document.getElementById("xpGood").value || 0),
-    //xpPerMinuteBad: Number(document.getElementById("xpBad").value || 0)
-  };
-
-  chrome.runtime.sendMessage(
-    { type: "SET_SETTINGS", settingsPatch: patch },
-    (res) => {
-      if (res?.ok) {
-        status.textContent = "Saved ✅";
-
-        setTimeout(() => {
-          window.close();
-        }, 300);
-      } else {
-        status.textContent = `Error: ${res?.err || "unknown"}`;
-        setTimeout(() => (status.textContent = ""), 2000);
-      }
-    }
-  );
+    chrome.storage.sync.set({
+      goodSites: goodSites,
+      badSites: badSites
+    }, () => {
+      status.textContent = '✓ Changes saved automatically';
+      setTimeout(() => {
+        status.classList.remove('show');
+      }, 2000);
+    });
+  }, 1000); // Wait 1 second after user stops typing
 }
 
-document.getElementById("save").addEventListener("click", save);
-load();
+// Add auto-save listeners
+document.getElementById('goodSites').addEventListener('input', autoSave);
+document.getElementById('badSites').addEventListener('input', autoSave);
+
+// Back button
+document.getElementById('backBtn').addEventListener('click', () => {
+  window.close();
+});

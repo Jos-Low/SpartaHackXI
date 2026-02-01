@@ -12,6 +12,9 @@
   "action": {
     "default_popup": "popup.html"
   },
+  "icons": {
+    "128": "assets/character/LVL_2_Animated_Flower.png"
+  },
   "options_page": "options.html",
   "content_scripts": [
     {
