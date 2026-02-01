@@ -21,12 +21,12 @@
       min-height: 100vh;
     }
 
-    a{
-        font-family: 'Press Start 2P', monospace;
-        font-size:1.9rem;
-        text-decoration: none;
-        color: Black;
-    }
+        img {
+            max-width: 50%;
+            height: auto;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
 
     h1 {
       font-size: 32px;
@@ -35,7 +35,7 @@
     }
 
     img {
-      max-width: 80%;
+      max-width: 50%;
       height: auto;
       margin: 40px 0;
       border: 5px solid #667eea;
@@ -58,6 +58,10 @@
       color: #eee;
       transition: background-color 0.3s, transform 0.1s;
       box-shadow: 0 4px 0px rgba(102, 126, 234, 0.5);
+    }
+
+    .arrow {
+        color: #000;
     }
 
     button:hover {
@@ -85,15 +89,23 @@
 </head>
 <body>
 
+<<<<<<< HEAD
+
+    <!-- Comic label image -->
+    <img src="../assets/comics/5.png" alt="Comic Book Label">
+=======
   <h1>Comic Page [5]</h1>
 
   <img src="../assets/comic_page_image.png" alt="Comic Page Image">
+>>>>>>> bd2ad9b (Comic pages)
 
   <div class="nav-buttons">
     <button><a href="comic1.html">&lt;</a></button>
     <button id="playBtn">Play Game</button>
     <button><a href="comic2.html" disabled>></a></button>
   </div>
+
+  <script src="./comicNav.js"></script>
 
 </body>
 </html>

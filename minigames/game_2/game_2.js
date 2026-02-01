@@ -11,7 +11,7 @@ var gameOverScreen = document.getElementById('gameOverScreen');
 // Game variables
 var gameRunning = false;
 var score = 0;
-var WIN_SCORE = 20;
+var WIN_SCORE = 2000;
 var player = { 
   x: 165, 
   y: 450, 

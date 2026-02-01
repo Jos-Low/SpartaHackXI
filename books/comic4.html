@@ -21,12 +21,12 @@
       min-height: 100vh;
     }
 
-    a{
-        font-family: 'Press Start 2P', monospace;
-        font-size:1.9rem;
-        text-decoration: none;
-        color: Black;
-    }
+        img {
+            max-width: 50%;
+            height: auto;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
 
     h1 {
       font-size: 32px;
@@ -35,7 +35,7 @@
     }
 
     img {
-      max-width: 80%;
+      max-width: 50%;
       height: auto;
       margin: 40px 0;
       border: 5px solid #667eea;
@@ -59,6 +59,11 @@
       transition: background-color 0.3s, transform 0.1s;
       box-shadow: 0 4px 0px rgba(102, 126, 234, 0.5);
     }
+
+    .arrow {
+        color: #000;
+    }
+
 
     button:hover {
       background: #667eea;
@@ -84,16 +89,16 @@
   </style>
 </head>
 <body>
+<!-- Comic label image -->
+    <img src="../assets/comics/4.png" alt="Comic Book Label">
 
-  <h1>Comic Page [4]</h1>
-
-  <img src="../assets/comic_page_image.png" alt="Comic Page Image">
-
-  <div class="nav-buttons">
-    <button><a href="comic1.html" disabled>&lt;</a></button>
-    <button id="playBtn">Play Game</button>
-    <button><a href="comic2.html">></a></button>
+  <div class="nav">
+    <button class="arrow" id="prevBtn" type="button">&lt;</button>
+    <button class="play" id="playBtn" type="button">Play Minigame</button>
+    <button class="arrow" id="nextBtn" type="button">&gt;</button>
   </div>
+
+  <script src="./comicNav.js"></script>
 
 </body>
 </html>
