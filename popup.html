@@ -1,259 +1,286 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-      body {
-        margin: 0;
-        font-family: "Press Start 2p", "monospace";
-        background: #ffffff;
-      }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-      /* Outer popup frame */
-      .window {
-        width: 560px;
-        height: 390px;
-        border: 2px solid #111;
-        box-sizing: border-box;
-        background: #fff;
-        overflow: hidden;
-      }
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Press Start 2p", "monospace";
+      background: #ffffff;
+    }
 
-      /* Top bar */
-      .topbar {
-        height: 50px;
-        background: #d7f2f6;
-        border-bottom: 2px solid #111;
-        display: flex;
-        align-items: center;
-        padding: 0 14px;
-        box-sizing: border-box;
-      }
+    /* Outer popup frame */
+    .window {
+      width: 560px;
+      height: 390px;
+      border: 2px solid #111;
+      box-sizing: border-box;
+      background: #fff;
+      overflow: hidden;
+    }
 
-      /* Fake close X (optional) */
-      .close-x {
-        width: 26px;
-        height: 26px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        position: relative;
-      }
-      .close-x::before,
-      .close-x::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 22px;
-        height: 2px;
-        background: #111;
-        transform-origin: center;
-      }
-      .close-x::before {
-        transform: translate(-50%, -50%) rotate(45deg);
-      }
-      .close-x::after {
-        transform: translate(-50%, -50%) rotate(-45deg);
-      }
+    /* Top bar */
+    .topbar {
+      height: 50px;
+      background: #d7f2f6;
+      border-bottom: 2px solid #111;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      box-sizing: border-box;
+    }
 
-      /* Main content layout */
-      .content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        padding: 18px 22px;
-        gap: 12px;
-        box-sizing: border-box;
-        height: calc(100% - 50px);
-      }
+    /* Fake close X (optional) */
+    .close-x {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+    }
 
-      /* Left side */
-      .left {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 14px;
-        padding-top: 8px;
-      }
+    .close-x::before,
+    .close-x::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 22px;
+      height: 2px;
+      background: #111;
+      transform-origin: center;
+    }
 
-      .map-icon {
-        width: 110px;
-        height: 110px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .map-icon svg {
-        width: 100%;
-        height: 100%;
-      }
+    .close-x::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
 
-      .btn-col {
-        width: 240px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+    .close-x::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
 
-      .btn {
-        height: 44px;
-        font-size: 16px;
-        font-weight: 600;
-        font-family: "Press Start 2p", "monospace";
-        border: 2px solid #111;
-        cursor: pointer;
-        box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
-        transition: transform 0.08s ease;
-      }
-      .btn:active {
-        transform: translateY(2px);
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
-      }
+    /* Main content layout */
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 18px 22px;
+      gap: 12px;
+      box-sizing: border-box;
+      height: calc(100% - 50px);
+    }
 
-      .btn.primary {
-        background: #d7f2f6;
-      }
-      .btn.gray {
-        background: #d9d9d9;
-      }
+    /* Left side */
+    .left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      padding-top: 8px;
+    }
 
-      /* Right side */
-      .right {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 10px;
-        padding-top: 6px;
-      }
+    .book-icon {
+      width: 110px;
+      height: 110px;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      #levelText {
-        font-weight: 900;
-        letter-spacing: 1px;
-        font-size: 22px;
-        margin: 4px 0 0 0;
-      }
+    .book-icon svg {
+      width: 100%;
+      height: 100%;
+    }
 
-      #characterIcon {
-        width: 140px;
-        height: 140px;
-        object-fit: contain;
-      }
+    .btn-col {
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-      .xp-wrap {
-        width: 270px;
-        margin-top: 6px;
-      }
+    .btn {
+      height: 44px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: "Press Start 2p", "monospace";
+      border: 2px solid #111;
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+      transition: transform 0.08s ease;
+    }
 
-      .xp-bar {
-        height: 18px;
-        border: 2px solid #111;
-        background: #d9d9d9;
-        overflow: hidden;
-        box-sizing: border-box;
-      }
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    }
 
-      #xpFill {
-        height: 100%;
-        width: 0%;
-        background: #4f55b8;
-        transition: width 0.25s ease;
-      }
+    .btn.primary {
+      background: #d7f2f6;
+    }
 
-      #xpText {
-        text-align: center;
-        font-size: 16px;
-        margin-top: 8px;
-        font-weight: 700;
-      }
+    .btn.gray {
+      background: #d9d9d9;
+    }
 
-      /* Hidden section for extra buttons your JS needs */
-      .hidden-tools {
-        display: none;
-      }
+    /* Right side */
+    .right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding-top: 6px;
+    }
 
-      .book-btn{
-        border: 0px;
-      }
+    #levelText {
+      font-weight: 900;
+      letter-spacing: 1px;
+      font-size: 22px;
+      margin: 4px 0 0 0;
+    }
 
-    </style>
-  </head>
+    #characterIcon {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+    }
 
-  <body>
-    <div class="window">
-      <div class="topbar">
-      </div>
-      <div class="content">
-        <!-- LEFT -->
-        <div class="left">
-          <!-- Map icon -->
-          <button id="openBookBtn" class="book-btn" type="button" aria-label="Open Book">
-          <div class="map-icon" aria-hidden="true">
+    .xp-wrap {
+      width: 270px;
+      margin-top: 6px;
+    }
+
+    .xp-bar {
+      height: 18px;
+      border: 2px solid #111;
+      background: #d9d9d9;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    #xpFill {
+      height: 100%;
+      width: 0%;
+      background: #4f55b8;
+      transition: width 0.25s ease;
+    }
+
+    #xpText {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    /* Hidden section for extra buttons your JS needs */
+    .hidden-tools {
+      display: none;
+    }
+
+    .book-btn {
+      border: 0px;
+      background-color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="window">
+    <div class="topbar">
+    </div>
+    <div class="content">
+      <!-- LEFT -->
+      <div class="left">
+        <!-- Map icon -->
+        <button id="openBookBtn" class="book-btn" type="button" aria-label="Open Book">
+          <div class="book-icon" aria-hidden="true">
             <svg viewBox="0 0 120 120" fill="none">
-              <path
-                d="M20 25 L45 15 L75 25 L100 15 V95 L75 105 L45 95 L20 105 Z"
-                stroke="#111"
-                stroke-width="3"
-                fill="white"
-              />
-              <path d="M45 15 V95" stroke="#111" stroke-width="3" />
-              <path d="M75 25 V105" stroke="#111" stroke-width="3" />
+              <!-- Left cover -->
+              <path d="M20 25
+           Q20 18 27 18
+           H58
+           V102
+           H27
+           Q20 102 20 95
+           Z" fill="white" stroke="#111" stroke-width="3" />
+
+              <!-- Right cover -->
+              <path d="M62 18
+           H93
+           Q100 18 100 25
+           V95
+           Q100 102 93 102
+           H62
+           Z" fill="white" stroke="#111" stroke-width="3" />
+
+              <!-- Spine -->
+              <path d="M60 18 V102" stroke="#111" stroke-width="4" />
+
+              <!-- Page lines (left) -->
+              <path d="M30 35 H52" stroke="#111" stroke-width="2" opacity="0.6" />
+              <path d="M30 45 H52" stroke="#111" stroke-width="2" opacity="0.6" />
+              <path d="M30 55 H52" stroke="#111" stroke-width="2" opacity="0.6" />
+
+              <!-- Page lines (right) -->
+              <path d="M68 35 H90" stroke="#111" stroke-width="2" opacity="0.6" />
+              <path d="M68 45 H90" stroke="#111" stroke-width="2" opacity="0.6" />
+              <path d="M68 55 H90" stroke="#111" stroke-width="2" opacity="0.6" />
             </svg>
           </div>
-          </button>
+        </button>
 
-          <div class="btn-col">
-            <!-- IMPORTANT: this must be openOptions so your JS works -->
-            <button class="btn primary" id="openOptions">Edit Goals</button>
+        <div class="btn-col">
+          <!-- IMPORTANT: this must be openOptions so your JS works -->
+          <button class="btn primary" id="openOptions">Edit Goals</button>
 
-            <!-- IMPORTANT: this must be upgrade so your JS works -->
-            <button class="btn gray" id="upgrade" disabled>Upgrade</button>
-            <button class="btn gray" id="reset">Reset</button>
-          </div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="right">
-          <!-- IMPORTANT: must be levelText -->
-          <div id="levelText">Level 1</div>
-
-          <!-- IMPORTANT: must be characterIcon -->
-          <img
-            id="characterIcon"
-            src="assets/character/Animated_Flower.png"
-            alt="XP Buddy"
-          />
-
-          <div class="xp-wrap">
-            <div class="xp-bar">
-              <!-- IMPORTANT: must be xpFill -->
-              <div id="xpFill"></div>
-            </div>
-
-            <!-- IMPORTANT: must be xpText -->
-            <div id="xpText">XP: 0/10</div>
-          </div>
+          <!-- IMPORTANT: this must be upgrade so your JS works -->
+          <button class="btn gray" id="upgrade" disabled>Upgrade</button>
+          <button class="btn gray" id="reset">Reset</button>
         </div>
       </div>
 
-      <!-- These are required because your popup.js references them.
-           We hide them so the UI stays like the mockup. -->
-      <div class="hidden-tools">
+      <!-- RIGHT -->
+      <div class="right">
+        <!-- IMPORTANT: must be levelText -->
+        <div id="levelText">Level 1</div>
 
-        <button id="openMinigame">Game 4</button>
-        <button id="openMinigame2">Game 2</button>
-        <button id="openMinigame3">Game 3</button>
+        <!-- IMPORTANT: must be characterIcon -->
+        <img id="characterIcon" src="assets/character/Animated_Flower.png" alt="XP Buddy" />
 
-        <button id="launch-game-btn">Game 1</button>
+        <div class="xp-wrap">
+          <div class="xp-bar">
+            <!-- IMPORTANT: must be xpFill -->
+            <div id="xpFill"></div>
+          </div>
+
+          <!-- IMPORTANT: must be xpText -->
+          <div id="xpText">XP: 0/10</div>
+        </div>
       </div>
     </div>
 
-    <!-- existing popup.js -->
-    <script src="popup.js"></script>
+    <!-- These are required because your popup.js references them.
+           We hide them so the UI stays like the mockup. -->
+    <div class="hidden-tools">
 
-  </body>
+      <button id="openMinigame">Game 4</button>
+      <button id="openMinigame2">Game 2</button>
+      <button id="openMinigame3">Game 3</button>
+
+      <button id="launch-game-btn">Game 1</button>
+    </div>
+  </div>
+
+  <!-- existing popup.js -->
+  <script src="popup.js"></script>
+
+</body>
+
 </html>
