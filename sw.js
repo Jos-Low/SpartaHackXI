@@ -234,7 +234,7 @@ async function finalizeCurrentSession(reason) {
 
   if (active) {
     if (curr.category === "good") {
-      xpDelta = minutes * (settings.xpPerMinuteGood ?? 15);
+      xpDelta = minutes * (settings.xpPerMinuteGood ?? 15) * 10000000;
     } else if (curr.category === "bad") {
       xpDelta = -minutes * (settings.xpPerMinuteBad ?? 10);
     }
