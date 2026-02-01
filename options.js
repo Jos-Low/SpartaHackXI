@@ -1,25 +1,5 @@
 // options.js
 
-const DEFAULT_GOOD_SITES = [
-  "wikipedia.org",
-  "docs.google.com",
-  "github.com",
-  "stackoverflow.com",
-  "w3schools.com",
-  "khanacademy.org",
-  "leetcode.com",
-];
-
-const DEFAULT_BAD_SITES = [
-  "x.com",
-  "reddit.com",
-  "instagram.com",
-  "facebook.com",
-  "tiktok.com",
-  "netflix.com",
-  "twitch.tv",
-];
-
 function linesToList(text) {
   return (text || "")
     .split("\n")
@@ -64,29 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const s = res.settings || {};
-    const goodSites =
-      Array.isArray(s.goodSites) && s.goodSites.length ? s.goodSites : DEFAULT_GOOD_SITES;
-    const badSites =
-      Array.isArray(s.badSites) && s.badSites.length ? s.badSites : DEFAULT_BAD_SITES;
+
+    // IMPORTANT: do NOT fall back to defaults based on .length
+    // Empty arrays should stay empty if the user saved them that way.
+    const goodSites = Array.isArray(s.goodSites) ? s.goodSites : [];
+    const badSites = Array.isArray(s.badSites) ? s.badSites : [];
 
     goodEl.value = listToLines(goodSites);
     badEl.value = listToLines(badSites);
-
-    // If first run / empty, persist defaults so SW sees them too
-    if (!Array.isArray(s.goodSites) || !s.goodSites.length || !Array.isArray(s.badSites) || !s.badSites.length) {
-      chrome.runtime.sendMessage(
-        {
-          type: "SET_SETTINGS",
-          settingsPatch: { goodSites: DEFAULT_GOOD_SITES, badSites: DEFAULT_BAD_SITES },
-        },
-        () => {}
-      );
-    }
   });
 
   function autoSave() {
     clearTimeout(saveTimeout);
-
     showStatus("⏳ Saving...");
 
     saveTimeout = setTimeout(() => {
@@ -94,10 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const badSites = linesToList(badEl.value);
 
       chrome.runtime.sendMessage(
-        {
-          type: "SET_SETTINGS",
-          settingsPatch: { goodSites, badSites },
-        },
+        { type: "SET_SETTINGS", settingsPatch: { goodSites, badSites } },
         (res) => {
           if (!res?.ok) {
             console.error("[Options] SET_SETTINGS failed:", chrome.runtime.lastError, res);
