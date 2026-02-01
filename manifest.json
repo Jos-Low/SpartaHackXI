@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "XP Buddy MVP",
+  "name": "Slacker",
   "version": "0.1.0",
-  "description": "Earn XP on good sites, lose XP on bad sites, with a character overlay.",
+  "description": "Slacker is a unique Chrome Extension that gamifies your browsing experience. Transform your productivity into progress as you level up your character through a compelling storyline across 5 mini-games. Visit productive sites to gain XP, avoid distractions, and watch your character grow!",
   "permissions": ["tabs", "storage", "idle"],
   "host_permissions": ["<all_urls>"],
   "background": {
