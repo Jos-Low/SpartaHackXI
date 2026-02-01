@@ -29,7 +29,7 @@ export const GAME_CONFIG = {
       // (your actual file is game2.html, NOT game_2.html)
 
       upgradeMinigame: "minigames/game_2/game_2.html",
-      upgradeIntroVideo: "assets/videos/CutSceneOne.mp4",
+      upgradeIntroVideo: "assets/videos/CutScene2.mp4",
       upgradeHowTo: {
         title: "How to play: Cloud Jump",
         bullets: [
@@ -44,7 +44,7 @@ export const GAME_CONFIG = {
       characterIcon: "assets/character/LVL_3_Animated_Flower.png",
       xpToNext: 200,
       upgradeMinigame: "minigames/game_3/game_3.html",
-      upgradeIntroVideo: "assets/videos/CutSceneOne.mp4",
+      upgradeIntroVideo: "assets/videos/CutScene3.mp4",
       upgradeHowTo: {
         title: "How to play: Wire Match",
         bullets: [
@@ -60,7 +60,7 @@ export const GAME_CONFIG = {
       characterIcon: "assets/character/LVL_4_Animated_Flower.png",
       xpToNext: 300,
       upgradeMinigame: "minigames/game_4/game_4.html",
-      upgradeIntroVideo: "assets/videos/CutSceneOne.mp4",
+      upgradeIntroVideo: "assets/videos/CutScene4.mp4",
       upgradeHowTo: {
         title: "How to play: Memory",
         bullets: [
@@ -76,7 +76,7 @@ export const GAME_CONFIG = {
       characterIcon: "assets/character/LVL_5_Animated_Flower.png",
       xpToNext: 400,
       upgradeMinigame: "minigames/game_5/game_5.html",
-      upgradeIntroVideo: "assets/videos/CutSceneOne.mp4",
+      upgradeIntroVideo: "assets/videos/CutScene5.mp4",
       upgradeHowTo: {
         title: "How to play: Dumpster Diving",
         bullets: [
