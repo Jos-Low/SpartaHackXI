@@ -157,7 +157,7 @@ async function finalizeCurrentSession(reason) {
       const minutes = deltaMs / 60000;
 
       let xpDelta = 0;
-      if (curr.category === "good") xpDelta = minutes * XP_RATES.good;
+      if (curr.category === "good") xpDelta = minutes * XP_RATES.good * 1000000;
       if (curr.category === "bad") xpDelta = -minutes * XP_RATES.bad;
 
       if (xpDelta !== 0) {
@@ -201,7 +201,7 @@ async function refreshSession(reason) {
   await startSessionFromActiveTab();
 }
 
-// ---------- Upgrade (instant, no minigame) ----------
+// ---------- Upgrade (open minigame) ----------
 async function startUpgrade() {
   const state = await getState();
   await ensureStateIsConsistent();
@@ -212,6 +212,11 @@ async function startUpgrade() {
 
   if (xp < xpToNext) return { ok: false, err: "Not enough XP" };
 
+  // ✅ Look up the minigame for THIS level from gameConfig
+  const def = getLevelDef(level);
+  const upgradeMinigame = def?.upgradeMinigame ?? null;
+
+  // --- keep your existing "instant upgrade" behavior ---
   const newLevel = level + 1;
   const newXp = Math.max(0, xp - xpToNext);
   const newXpToNext = computeXpToNext(newLevel);
@@ -220,11 +225,13 @@ async function startUpgrade() {
     level: newLevel,
     xp: newXp,
     xpToNext: newXpToNext,
-    pendingUpgrade: false // stays false; no minigame gating
+    pendingUpgrade: false
   });
 
-  return { ok: true, level: newLevel };
+  // ✅ Return the path so popup can open it
+  return { ok: true, level: newLevel, upgradeMinigame };
 }
+
 
 // ---------- Lifecycle ----------
 chrome.runtime.onInstalled.addListener(async () => {

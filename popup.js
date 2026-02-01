@@ -79,14 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.runtime.sendMessage({ type: "START_UPGRADE" }, (res) => {
         if (!res?.ok) {
           console.warn("START_UPGRADE failed:", res?.err);
-
-          // Re-render from canonical state to restore correct UI
           load();
           return;
         }
 
-        // If success: background will broadcast STATE_UPDATED and render() will run.
-        // No need to do anything else here.
+        // ✅ Open upgrade minigame (if configured)
+        if (res.upgradeMinigame) {
+          chrome.tabs.create({
+            url: chrome.runtime.getURL(res.upgradeMinigame),
+          });
+          window.close();
+        }
       });
     });
   }
