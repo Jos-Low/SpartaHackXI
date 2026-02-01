@@ -551,6 +551,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
     }
 
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg.type === "GET_MINIGAME_FOR_LEVEL") {
+        const def = getLevelDef(msg.level);
+        sendResponse({ ok: true, minigame: def?.upgradeMinigame ?? null });
+        return true;
+      }
+    });
+
+
     return sendResponse({ ok: false, err: "Unknown message" });
   })();
 

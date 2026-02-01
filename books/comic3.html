@@ -1,62 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Comic Label</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
+  <meta charset="UTF-8" />
+  <title>Comic 3</title>
 
-        img {
-            max-width: 50%;
-            height: auto;
-            margin: 20px 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
 
-        .nav-buttons {
-            margin-top: 20px;
-        }
+    img {
+      max-width: 50%;
+      height: auto;
+      margin: 20px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
 
-        button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    .nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-top: 24px;
+    }
 
-        a {
-            text-decoration: None;
-            color: black;
-        }
-    </style>
+    button {
+      padding: 12px 18px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .arrow { font-size: 24px; width: 60px; }
+    .play {
+      font-weight: bold;
+      background: #4caf50;
+      color: white;
+      padding: 14px 26px;
+    }
+    .play:disabled { background: #999; cursor: not-allowed; }
+  </style>
 </head>
+
 <body>
+  <img src="../assets/comics/3.png" alt="Comic 3" />
 
+  <div class="nav">
+    <button class="arrow" id="prevBtn" type="button">⬅</button>
+    <button class="play" id="playBtn" type="button">▶ Play Minigame</button>
+    <button class="arrow" id="nextBtn" type="button">➡</button>
+  </div>
 
-    <!-- Comic label image -->
-    <img src="../assets/comics/3.png" alt="Comic Book Label">
-
-    <!-- Navigation buttons -->
-    <div class="nav-buttons">
-        <button onclick="goBack()"><a href="comic2.html">⬅ Previous</a></button>
-        <button onclick="goNext()"><a href="comic4.html">Next ➡</a></button>
-    </div>
-
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-
-        function goNext() {
-            window.location.href = "page2.html";
-        }
-    </script>
+  <!-- ✅ External JS (required for MV3) -->
+  
+  <script src="./comicNav.js"></script>
 
 </body>
 </html>
