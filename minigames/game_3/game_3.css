@@ -198,3 +198,15 @@ select {
   line-height: 1.35;
 }
 .help b { color: rgba(255,255,255,0.9); }
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+#nextBtn {
+  margin-left: auto;
+}
+

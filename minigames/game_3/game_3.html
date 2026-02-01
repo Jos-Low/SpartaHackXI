@@ -13,16 +13,20 @@
         <div class="title">
           <span class="badge">Mini Game</span>
           <h1>Flow Connect</h1>
+          <!-- Optional: JS can set this text if you want -->
+          <div id="levelLabel" class="levelLabel" aria-live="polite"></div>
         </div>
 
         <div class="controls">
+          <!-- Optional dropdown (not needed for campaign mode)
           <label class="selectWrap">
             <span>Level</span>
             <select id="levelSelect"></select>
           </label>
+          -->
 
-          <button id="resetBtn" class="btn">Reset</button>
-          <button id="clearBtn" class="btn ghost">Clear All</button>
+          <button id="resetBtn" class="btn" type="button">Reset</button>
+          <button id="clearBtn" class="btn ghost" type="button">Clear All</button>
         </div>
       </header>
 
@@ -34,6 +38,9 @@
         <div class="statusRow">
           <div id="status" class="status">Connect all matching colors.</div>
           <div id="progress" class="progress"></div>
+          <button id="nextBtn" class="btn" type="button" style="display:none;">
+            Next Level
+          </button>
         </div>
 
         <div class="help">
@@ -46,6 +53,7 @@
       </main>
     </div>
 
+    <!-- Good: JS loads after DOM -->
     <script src="./game_3.js"></script>
   </body>
 </html>
