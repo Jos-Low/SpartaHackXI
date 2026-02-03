@@ -9,6 +9,12 @@ Slacker is a unique Chrome Extension that gamifies your browsing experience. Tra
 
 ---
 
+## 🎮 Developed By
+- **Owen Curtis**
+- **Ellery Curtis**
+- **Josh Lowden**
+- **Mason Soule**
+
 ## 🎮 Features
 
 ### ✅ Core Features
